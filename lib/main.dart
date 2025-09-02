@@ -19,14 +19,14 @@ class gameState extends ChangeNotifier {
   }
 
   void takeNumber() {
-    vanarBalakSide -= masterNumber;
-    computerSide += masterNumber;
+    vanarBalakSide += masterNumber;
+    computerSide -= masterNumber;
     notifyListeners();
   }
 
   void giveNumber() {
-    vanarBalakSide += masterNumber;
-    computerSide -= masterNumber;
+    vanarBalakSide -= masterNumber;
+    computerSide += masterNumber;
     notifyListeners();
   }
 }
@@ -164,7 +164,7 @@ class ComputerNumber extends StatelessWidget {
     double computerFontSize = 35 - (15 / (1 + computerSide));
     return Center(
       child: Text(
-        'Computer Side: $computerSide',
+        'Dushman Side: $computerSide',
         style: TextStyle(
           fontSize: computerFontSize,
           fontWeight: FontWeight.bold,
