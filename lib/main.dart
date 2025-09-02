@@ -1,8 +1,34 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(create: (_) => gameState(), child: const MyApp()),
+  );
+}
+
+class gameState extends ChangeNotifier {
+  int computerSide = 15;
+  int vanarBalakSide = 50;
+  int masterNumber = 0;
+
+  void updateMasterNumber() {
+    masterNumber = Random().nextInt(100);
+    notifyListeners();
+  }
+
+  void takeNumber() {
+    vanarBalakSide -= masterNumber;
+    computerSide += masterNumber;
+    notifyListeners();
+  }
+
+  void giveNumber() {
+    vanarBalakSide += masterNumber;
+    computerSide -= masterNumber;
+    notifyListeners();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -67,21 +93,17 @@ class _MyHomePageState extends State<MyHomePage> {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class randomNumber extends StatefulWidget {
-  @override
-  State<randomNumber> createState() => _randomNumberState();
-}
-
-class _randomNumberState extends State<randomNumber> {
-  int masterNumber = Random().nextInt(100);
+class randomNumber extends StatelessWidget {
+  const randomNumber({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final game = context.watch<gameState>();
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Master Number: $masterNumber',
+          'Master Number: ${game.masterNumber}',
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
         Row(
@@ -89,23 +111,18 @@ class _randomNumberState extends State<randomNumber> {
           children: [
             ElevatedButton(
               onPressed: () {
-                final homeState = context
-                    .findAncestorStateOfType<_MyHomePageState>();
-                if (homeState != null) {
-                  homeState.setState(() {
-                    homeState.vanarBalakSide += masterNumber;
-                  });
-                }
-                setState(() {
-                  masterNumber = Random().nextInt(100);
-                });
+                context.read<gameState>().takeNumber();
+                context.read<gameState>().updateMasterNumber();
               },
               child: Text('Take'),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                onPressed: () => setState(() {}),
+                onPressed: () {
+                  context.read<gameState>().giveNumber();
+                  context.read<gameState>().updateMasterNumber();
+                },
                 child: Text('give'),
               ),
             ),
@@ -116,16 +133,12 @@ class _randomNumberState extends State<randomNumber> {
   }
 }
 
-class vanarBalakNumber extends StatefulWidget {
-  @override
-  State<vanarBalakNumber> createState() => _vanarBalakNumberState();
-}
-
-class _vanarBalakNumberState extends State<vanarBalakNumber> {
-  var vanarBalakSide = 50;
+class vanarBalakNumber extends StatelessWidget {
+  const vanarBalakNumber({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final vanarBalakSide = context.watch<gameState>().vanarBalakSide;
     double vanarBalakFontSize =
         35 -
         (15 /
@@ -143,16 +156,11 @@ class _vanarBalakNumberState extends State<vanarBalakNumber> {
   }
 }
 
-class ComputerNumber extends StatefulWidget {
-  @override
-  State<ComputerNumber> createState() => _ComputerNumberState();
-}
-
-class _ComputerNumberState extends State<ComputerNumber> {
-  var computerSide = 12;
-
+class ComputerNumber extends StatelessWidget {
+  const ComputerNumber({super.key});
   @override
   Widget build(BuildContext context) {
+    final computerSide = context.watch<gameState>().computerSide;
     double computerFontSize = 35 - (15 / (1 + computerSide));
     return Center(
       child: Text(
