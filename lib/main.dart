@@ -9,13 +9,68 @@ void main() {
 }
 
 class gameState extends ChangeNotifier {
-  int computerSide = 15;
-  int vanarBalakSide = 50;
-  int masterNumber = 0;
+  int computerSide = 0;
+  int vanarBalakSide = 0;
+  int masterNumber = 2;
+  int totalSet = 0;
+  int setNumber = 0;
+  double vanarScore = 0;
+  double computerScore = 0;
+  int winnerVanar = 0;
+  int winnerComputer = 0;
+  int winnerBoth = 0;
 
   void updateMasterNumber() {
     masterNumber = Random().nextInt(100);
+    setNumber = setNumber + 1;
     notifyListeners();
+  }
+
+  void setSystem() {
+    if (setNumber > 10) {
+      if (vanarBalakSide > computerSide) {
+        vanarScore = vanarScore + 1;
+      } else if (computerSide > vanarBalakSide) {
+        computerScore = computerScore + 1;
+      } else {
+        vanarScore = vanarScore + 0.5;
+        computerScore = computerScore + 0.5;
+      }
+      computerSide = 0;
+      vanarBalakSide = 0;
+      setNumber = 0;
+      totalSet = totalSet + 1;
+      notifyListeners();
+    }
+  }
+
+  void winnerSystem() {
+    if (totalSet > 10) {
+      if (vanarScore > computerScore) {
+        winnerVanar = 1; // Vanar Balak is the overall winner
+      } else if (computerScore > vanarScore) {
+        winnerComputer = 1; // Computer is the overall winner
+      } else {
+        winnerBoth = 1; // It's a tie overall
+      }
+      notifyListeners();
+    }
+  }
+
+  void resetGame() {
+    if (winnerVanar == 1 || winnerComputer == 1 || winnerBoth == 1) {
+      computerSide = 0;
+      vanarBalakSide = 0;
+      masterNumber = 2;
+      totalSet = 0;
+      setNumber = 0;
+      vanarScore = 0;
+      computerScore = 0;
+      winnerVanar = 0;
+      winnerComputer = 0;
+      winnerBoth = 0;
+      notifyListeners();
+    }
   }
 
   void takeNumber() {
@@ -61,15 +116,22 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Vanar Balak"),
-        backgroundColor: Color.fromARGB(255, 245, 78, 181),
+        title: Text(
+          "Vanar Balak",
+          style: TextStyle(
+            fontSize: 40,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Color.fromARGB(255, 233, 5, 5),
         centerTitle: true,
       ),
       body: Row(
         children: [
           Expanded(
             child: Container(
-              color: Color.fromARGB(131, 29, 206, 147),
+              color: Color.fromARGB(131, 206, 219, 146),
               child: ComputerNumber(),
             ),
           ),
@@ -81,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Expanded(
             child: Container(
-              color: Color.fromARGB(201, 111, 210, 092),
+              color: Color.fromARGB(131, 206, 219, 146),
               child: vanarBalakNumber(),
             ),
           ),
@@ -103,7 +165,7 @@ class randomNumber extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Master Number: ${game.masterNumber}',
+          '${game.masterNumber}',
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
         Row(
@@ -113,6 +175,9 @@ class randomNumber extends StatelessWidget {
               onPressed: () {
                 context.read<gameState>().takeNumber();
                 context.read<gameState>().updateMasterNumber();
+                context.read<gameState>().setSystem();
+                context.read<gameState>().winnerSystem();
+                context.read<gameState>().resetGame();
               },
               child: Text('Take'),
             ),
@@ -122,6 +187,9 @@ class randomNumber extends StatelessWidget {
                 onPressed: () {
                   context.read<gameState>().giveNumber();
                   context.read<gameState>().updateMasterNumber();
+                  context.read<gameState>().setSystem();
+                  context.read<gameState>().winnerSystem();
+                  context.read<gameState>().resetGame();
                 },
                 child: Text('give'),
               ),
