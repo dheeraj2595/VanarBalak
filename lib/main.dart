@@ -19,6 +19,9 @@ class gameState extends ChangeNotifier {
   int winnerVanar = 0;
   int winnerComputer = 0;
   int winnerBoth = 0;
+  String winStatement = " ";
+  int vanarBalakDigit = 0;
+  int computerDigit = 0;
 
   void updateMasterNumber() {
     masterNumber = Random().nextInt(100);
@@ -27,7 +30,7 @@ class gameState extends ChangeNotifier {
   }
 
   void setSystem() {
-    if (setNumber > 10) {
+    if (setNumber >= 10) {
       if (vanarBalakSide > computerSide) {
         vanarScore = vanarScore + 1;
       } else if (computerSide > vanarBalakSide) {
@@ -39,19 +42,26 @@ class gameState extends ChangeNotifier {
       computerSide = 0;
       vanarBalakSide = 0;
       setNumber = 0;
+      vanarBalakDigit = 0;
+      computerDigit = 0;
       totalSet = totalSet + 1;
       notifyListeners();
     }
   }
 
   void winnerSystem() {
-    if (totalSet > 10) {
+    if (totalSet > 9) {
       if (vanarScore > computerScore) {
-        winnerVanar = 1; // Vanar Balak is the overall winner
+        winnerVanar = 1;
+        winStatement =
+            "Vanar Balak is the ultimate winner."; // Vanar Balak is the overall winner
       } else if (computerScore > vanarScore) {
-        winnerComputer = 1; // Computer is the overall winner
+        winnerComputer = 1;
+        winStatement =
+            "Dushman is the ultimate winner."; // Computer is the overall winner
       } else {
-        winnerBoth = 1; // It's a tie overall
+        winnerBoth = 1;
+        winStatement = "It's a tie."; // It's a tie overall
       }
       notifyListeners();
     }
@@ -69,19 +79,33 @@ class gameState extends ChangeNotifier {
       winnerVanar = 0;
       winnerComputer = 0;
       winnerBoth = 0;
+      vanarBalakDigit = 0;
+      computerDigit = 0;
       notifyListeners();
     }
   }
 
   void takeNumber() {
-    vanarBalakSide += masterNumber;
-    computerSide -= masterNumber;
+    if (vanarBalakDigit < 5) {
+      vanarBalakSide += masterNumber;
+      vanarBalakDigit = vanarBalakDigit + 1;
+    } else {
+      computerSide += masterNumber;
+      computerDigit = computerDigit + 1; // Do nothing if the limit is reached
+    }
+
     notifyListeners();
   }
 
   void giveNumber() {
-    vanarBalakSide -= masterNumber;
-    computerSide += masterNumber;
+    if (computerDigit < 5) {
+      computerSide += masterNumber;
+      computerDigit = computerDigit + 1;
+    } else {
+      vanarBalakSide += masterNumber;
+      vanarBalakDigit =
+          vanarBalakDigit + 1; // Do nothing if the limit is reached
+    }
     notifyListeners();
   }
 }
@@ -124,7 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color.fromARGB(255, 233, 5, 5),
+        backgroundColor: Color.fromARGB(131, 233, 5, 195),
         centerTitle: true,
       ),
       body: Row(
@@ -132,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
             child: Container(
               color: Color.fromARGB(131, 206, 219, 146),
-              child: ComputerNumber(),
+              child: vanarBalakNumber(),
             ),
           ),
           Expanded(
@@ -144,7 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
             child: Container(
               color: Color.fromARGB(131, 206, 219, 146),
-              child: vanarBalakNumber(),
+              child: ComputerNumber(),
             ),
           ),
         ],
@@ -165,6 +189,10 @@ class randomNumber extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
+          '${game.totalSet} out of 10 Sets',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Text(
           '${game.masterNumber}',
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
@@ -172,29 +200,80 @@ class randomNumber extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () {
-                context.read<gameState>().takeNumber();
-                context.read<gameState>().updateMasterNumber();
-                context.read<gameState>().setSystem();
-                context.read<gameState>().winnerSystem();
-                context.read<gameState>().resetGame();
-              },
+              onPressed: game.vanarBalakDigit >= 5
+                  ? null
+                  : () {
+                      context.read<gameState>().takeNumber();
+                      context.read<gameState>().updateMasterNumber();
+                      context.read<gameState>().setSystem();
+                      context.read<gameState>().winnerSystem();
+                      context.read<gameState>().resetGame();
+                    },
               child: Text('Take'),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                onPressed: () {
-                  context.read<gameState>().giveNumber();
-                  context.read<gameState>().updateMasterNumber();
-                  context.read<gameState>().setSystem();
-                  context.read<gameState>().winnerSystem();
-                  context.read<gameState>().resetGame();
-                },
+                onPressed: game.computerDigit >= 5
+                    ? null
+                    : () {
+                        context.read<gameState>().giveNumber();
+                        context.read<gameState>().updateMasterNumber();
+                        context.read<gameState>().setSystem();
+                        context.read<gameState>().winnerSystem();
+                        context.read<gameState>().resetGame();
+                      },
                 child: Text('give'),
               ),
             ),
           ],
+        ),
+
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Vanar Score : ${game.vanarScore}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Dushman Score : ${game.computerScore}',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.emoji_events, color: Colors.amber, size: 30),
+              SizedBox(width: 10),
+              Text(
+                '${game.winStatement}',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.normal,
+                  foreground: Paint()
+                    ..style = PaintingStyle.fill
+                    ..strokeWidth = 5
+                    ..color = const Color.fromARGB(255, 235, 11, 22),
+                ),
+              ),
+              SizedBox(width: 10),
+              Icon(Icons.emoji_events, color: Colors.amber, size: 30),
+            ],
+          ),
         ),
       ],
     );
