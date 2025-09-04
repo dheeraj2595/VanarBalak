@@ -120,6 +120,9 @@ class MyApp extends StatelessWidget {
       title: 'Vanar Balak',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        textTheme: ThemeData.light().textTheme.copyWith(
+          bodyMedium: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+        ),
       ),
       home: MyHomePage(),
     );
@@ -138,36 +141,37 @@ class _MyHomePageState extends State<MyHomePage> {
   var vanarBalakSide = 0;
 
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
           "Vanar Balak",
           style: TextStyle(
-            fontSize: 40,
+            fontSize: theme.textTheme.headlineMedium!.fontSize,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: theme.colorScheme.onPrimary,
           ),
         ),
-        backgroundColor: Color.fromARGB(131, 233, 5, 195),
+        backgroundColor: theme.colorScheme.primary,
         centerTitle: true,
       ),
       body: Row(
         children: [
-          Expanded(
+          Flexible(
             child: Container(
-              color: Color.fromARGB(131, 206, 219, 146),
+              color: theme.colorScheme.primaryContainer,
               child: vanarBalakNumber(),
             ),
           ),
-          Expanded(
+          Flexible(
             child: Container(
-              color: Color.fromARGB(132, 255, 201, 202),
+              color: theme.colorScheme.secondaryContainer,
               child: randomNumber(),
             ),
           ),
-          Expanded(
+          Flexible(
             child: Container(
-              color: Color.fromARGB(131, 206, 219, 146),
+              color: theme.colorScheme.primaryContainer,
               child: ComputerNumber(),
             ),
           ),
@@ -190,14 +194,17 @@ class randomNumber extends StatelessWidget {
       children: [
         Text(
           '${game.totalSet} out of 10 Sets',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * 0.0006,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         Text(
           '${game.masterNumber}',
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
           children: [
             ElevatedButton(
               onPressed: game.vanarBalakDigit >= 5
@@ -231,21 +238,27 @@ class randomNumber extends StatelessWidget {
 
         Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Wrap(
+            alignment: WrapAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   'Vanar Score : ${game.vanarScore}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.03,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   'Dushman Score : ${game.computerScore}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.03,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -253,8 +266,9 @@ class randomNumber extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            runAlignment: WrapAlignment.center,
             children: [
               Icon(Icons.emoji_events, color: Colors.amber, size: 30),
               SizedBox(width: 10),
@@ -287,16 +301,19 @@ class vanarBalakNumber extends StatelessWidget {
   Widget build(BuildContext context) {
     final vanarBalakSide = context.watch<gameState>().vanarBalakSide;
     double vanarBalakFontSize =
-        35 -
-        (15 /
-            (1 +
+        0.03 -
+        (0.03 /
+            (5 +
                 vanarBalakSide)); // Asymptotic formula, approaches 25 but never reaches
     return Center(
-      child: Text(
-        'Vanar Balak Side: $vanarBalakSide',
-        style: TextStyle(
-          fontSize: vanarBalakFontSize,
-          fontWeight: FontWeight.bold,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Text(
+          'Vanar Balak Side: $vanarBalakSide',
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * vanarBalakFontSize,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -308,13 +325,20 @@ class ComputerNumber extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final computerSide = context.watch<gameState>().computerSide;
-    double computerFontSize = 35 - (15 / (1 + computerSide));
+    double computerFontSize =
+        0.03 -
+        0.03 /
+            (5 +
+                computerSide); // Asymptotic formula, approaches 0.03 but never reaches
     return Center(
-      child: Text(
-        'Dushman Side: $computerSide',
-        style: TextStyle(
-          fontSize: computerFontSize,
-          fontWeight: FontWeight.bold,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Text(
+          'Dushman Side: $computerSide',
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * computerFontSize,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
