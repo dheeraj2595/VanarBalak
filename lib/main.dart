@@ -23,8 +23,26 @@ class gameState extends ChangeNotifier {
   int vanarBalakDigit = 0;
   int computerDigit = 0;
 
+  final Random random = Random();
+  double bellLike({int samples = 6}) {
+    double total = 0;
+    for (int i = 0; i < samples; i++) {
+      total += random.nextDouble();
+    }
+    return total / samples;
+  }
+
+  int bellWithRareExtremes(int max) {
+    if (random.nextDouble() < 0.07) {
+      return random.nextInt(max);
+    } else {
+      double val = bellLike(samples: 6);
+      return (val * (max)).round();
+    }
+  }
+
   void updateMasterNumber() {
-    masterNumber = Random().nextInt(100);
+    masterNumber = bellWithRareExtremes(100);
     setNumber = setNumber + 1;
     notifyListeners();
   }
@@ -165,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Flexible(
             child: Container(
-              color: theme.colorScheme.secondaryContainer,
+              color: theme.colorScheme.primaryContainer,
               child: randomNumber(),
             ),
           ),
@@ -195,7 +213,7 @@ class randomNumber extends StatelessWidget {
         Text(
           '${game.totalSet} out of 10 Sets',
           style: TextStyle(
-            fontSize: MediaQuery.of(context).size.width * 0.0006,
+            fontSize: MediaQuery.of(context).size.width * 0.03,
             fontWeight: FontWeight.bold,
           ),
         ),
