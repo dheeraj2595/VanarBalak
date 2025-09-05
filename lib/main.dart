@@ -22,6 +22,10 @@ class gameState extends ChangeNotifier {
   String winStatement = " ";
   int vanarBalakDigit = 0;
   int computerDigit = 0;
+  bool isComputerTurn = false;
+  List<String> moveHistory = []; // V for vanar and C for computer
+  List<String> vanarNumberAdded = [];
+  List<String> computerNumberAdded = [];
 
   final Random random = Random();
   double bellLike({int samples = 6}) {
@@ -33,7 +37,7 @@ class gameState extends ChangeNotifier {
   }
 
   int bellWithRareExtremes(int max) {
-    if (random.nextDouble() < 0.07) {
+    if (random.nextDouble() < 0.20) {
       return random.nextInt(max);
     } else {
       double val = bellLike(samples: 6);
@@ -42,8 +46,18 @@ class gameState extends ChangeNotifier {
   }
 
   void updateMasterNumber() {
-    masterNumber = bellWithRareExtremes(100);
-    setNumber = setNumber + 1;
+    masterNumber = bellWithRareExtremes(1000);
+    notifyListeners();
+  }
+
+  void computerPlay() {
+    if (masterNumber >= 500) {
+      giveNumber();
+      updateMasterNumber();
+    } else if (masterNumber < 500) {
+      takeNumber();
+      updateMasterNumber();
+    }
     notifyListeners();
   }
 
@@ -63,6 +77,9 @@ class gameState extends ChangeNotifier {
       vanarBalakDigit = 0;
       computerDigit = 0;
       totalSet = totalSet + 1;
+      moveHistory.clear();
+      vanarNumberAdded.clear();
+      computerNumberAdded.clear();
       notifyListeners();
     }
   }
@@ -107,9 +124,9 @@ class gameState extends ChangeNotifier {
     if (vanarBalakDigit < 5) {
       vanarBalakSide += masterNumber;
       vanarBalakDigit = vanarBalakDigit + 1;
-    } else {
-      computerSide += masterNumber;
-      computerDigit = computerDigit + 1; // Do nothing if the limit is reached
+      setNumber = setNumber + 1;
+      moveHistory.add('V');
+      vanarNumberAdded.add('$masterNumber');
     }
 
     notifyListeners();
@@ -119,10 +136,9 @@ class gameState extends ChangeNotifier {
     if (computerDigit < 5) {
       computerSide += masterNumber;
       computerDigit = computerDigit + 1;
-    } else {
-      vanarBalakSide += masterNumber;
-      vanarBalakDigit =
-          vanarBalakDigit + 1; // Do nothing if the limit is reached
+      setNumber = setNumber + 1;
+      moveHistory.add('C');
+      computerNumberAdded.add('$masterNumber');
     }
     notifyListeners();
   }
@@ -207,6 +223,20 @@ class randomNumber extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final game = context.watch<gameState>();
+    if (game.setNumber.isOdd) {
+      game.isComputerTurn = true;
+      Future.delayed(Duration(milliseconds: 500), () {
+        context.read<gameState>().computerPlay();
+      });
+    } else {
+      game.isComputerTurn = false;
+    }
+    Future.delayed(Duration(milliseconds: 500), () {
+      context.read<gameState>().setSystem();
+      context.read<gameState>().winnerSystem();
+      context.read<gameState>().resetGame();
+    });
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -225,28 +255,24 @@ class randomNumber extends StatelessWidget {
           alignment: WrapAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: game.vanarBalakDigit >= 5
+              onPressed:
+                  game.vanarBalakDigit >= 5 || game.isComputerTurn == true
                   ? null
                   : () {
                       context.read<gameState>().takeNumber();
                       context.read<gameState>().updateMasterNumber();
-                      context.read<gameState>().setSystem();
-                      context.read<gameState>().winnerSystem();
-                      context.read<gameState>().resetGame();
                     },
               child: Text('Take'),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                onPressed: game.computerDigit >= 5
+                onPressed:
+                    game.computerDigit >= 5 || game.isComputerTurn == true
                     ? null
                     : () {
                         context.read<gameState>().giveNumber();
                         context.read<gameState>().updateMasterNumber();
-                        context.read<gameState>().setSystem();
-                        context.read<gameState>().winnerSystem();
-                        context.read<gameState>().resetGame();
                       },
                 child: Text('give'),
               ),
@@ -324,15 +350,74 @@ class vanarBalakNumber extends StatelessWidget {
             (5 +
                 vanarBalakSide)); // Asymptotic formula, approaches 25 but never reaches
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Text(
-          'Vanar Balak Side: $vanarBalakSide',
-          style: TextStyle(
-            fontSize: MediaQuery.of(context).size.width * vanarBalakFontSize,
-            fontWeight: FontWeight.bold,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.05,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                ...List.generate(
+                  context.watch<gameState>().vanarNumberAdded.length,
+                  (index) {
+                    final number = context
+                        .watch<gameState>()
+                        .vanarNumberAdded[index];
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(width: 15),
+                        Text(
+                          number.toString(),
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.03,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text('+ '),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
+
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              'Vanar Balak Side: $vanarBalakSide',
+              style: TextStyle(
+                fontSize:
+                    MediaQuery.of(context).size.width * vanarBalakFontSize,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.1,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              children: [
+                ...context.watch<gameState>().moveHistory.map((move) {
+                  if (move == 'V') {
+                    return Icon(
+                      Icons.star_outline,
+                      size: MediaQuery.of(context).size.width * 0.03,
+                    );
+                  } else {
+                    return Icon(
+                      Icons.circle,
+                      size: MediaQuery.of(context).size.width * 0.03,
+                    );
+                  }
+                }).toList(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -349,15 +434,77 @@ class ComputerNumber extends StatelessWidget {
             (5 +
                 computerSide); // Asymptotic formula, approaches 0.03 but never reaches
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Text(
-          'Dushman Side: $computerSide',
-          style: TextStyle(
-            fontSize: MediaQuery.of(context).size.width * computerFontSize,
-            fontWeight: FontWeight.bold,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.05,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                ...List.generate(
+                  context.watch<gameState>().computerNumberAdded.length,
+                  (index) {
+                    final number = context
+                        .watch<gameState>()
+                        .computerNumberAdded[index];
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(width: 15),
+                        Text(
+                          number.toString(),
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.03,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '+',
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.03,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              'Dushman Side: $computerSide',
+              style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width * computerFontSize,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.1,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              children: [
+                ...context.watch<gameState>().moveHistory.map((move) {
+                  if (move == 'V') {
+                    return Icon(
+                      Icons.star,
+                      size: MediaQuery.of(context).size.width * 0.03,
+                    );
+                  } else {
+                    return Icon(
+                      Icons.circle,
+                      size: MediaQuery.of(context).size.width * 0.03,
+                    );
+                  }
+                }).toList(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
