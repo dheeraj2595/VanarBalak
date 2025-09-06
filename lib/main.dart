@@ -11,8 +11,8 @@ void main() {
 class gameState extends ChangeNotifier {
   int computerSide = 0;
   int vanarBalakSide = 0;
-  int masterNumber = 2;
-  int totalSet = 0;
+  int masterNumber;
+  int totalSet = 1;
   int setNumber = 0;
   double vanarScore = 0;
   double computerScore = 0;
@@ -26,6 +26,9 @@ class gameState extends ChangeNotifier {
   List<String> moveHistory = []; // V for vanar and C for computer
   List<String> vanarNumberAdded = [];
   List<String> computerNumberAdded = [];
+  int setVictoryMargin = 0;
+
+  gameState() : masterNumber = Random().nextInt(1000);
 
   final Random random = Random();
   double bellLike({int samples = 6}) {
@@ -51,10 +54,14 @@ class gameState extends ChangeNotifier {
   }
 
   void computerPlay() {
-    if (masterNumber >= 500) {
+    if (masterNumber >= 500 && computerDigit < 5) {
       giveNumber();
       updateMasterNumber();
-    } else if (masterNumber < 500) {
+    } else if (masterNumber < 500 && vanarBalakDigit < 5) {
+      takeNumber();
+      updateMasterNumber();
+    } else {
+      giveNumber();
       takeNumber();
       updateMasterNumber();
     }
@@ -71,6 +78,7 @@ class gameState extends ChangeNotifier {
         vanarScore = vanarScore + 0.5;
         computerScore = computerScore + 0.5;
       }
+      setVictoryMargin = vanarBalakSide - computerSide;
       computerSide = 0;
       vanarBalakSide = 0;
       setNumber = 0;
@@ -85,7 +93,7 @@ class gameState extends ChangeNotifier {
   }
 
   void winnerSystem() {
-    if (totalSet > 9) {
+    if (totalSet > 10) {
       if (vanarScore > computerScore) {
         winnerVanar = 1;
         winStatement =
@@ -106,16 +114,16 @@ class gameState extends ChangeNotifier {
     if (winnerVanar == 1 || winnerComputer == 1 || winnerBoth == 1) {
       computerSide = 0;
       vanarBalakSide = 0;
-      masterNumber = 2;
-      totalSet = 0;
+      masterNumber = 0;
+      totalSet = 1;
       setNumber = 0;
       vanarScore = 0;
       computerScore = 0;
+      vanarBalakDigit = 0;
+      computerDigit = 0;
       winnerVanar = 0;
       winnerComputer = 0;
       winnerBoth = 0;
-      vanarBalakDigit = 0;
-      computerDigit = 0;
       notifyListeners();
     }
   }
@@ -158,7 +166,17 @@ class MyApp extends StatelessWidget {
           bodyMedium: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
         ),
       ),
-      home: MyHomePage(),
+      home: Consumer<gameState>(
+        builder: (context, game, _) {
+          if (game.winnerVanar == 1 ||
+              game.winnerComputer == 1 ||
+              game.winnerBoth == 1) {
+            return const winnerPage();
+          } else {
+            return MyHomePage();
+          }
+        },
+      ),
     );
   }
 }
@@ -176,6 +194,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -225,16 +244,15 @@ class randomNumber extends StatelessWidget {
     final game = context.watch<gameState>();
     if (game.setNumber.isOdd) {
       game.isComputerTurn = true;
-      Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(Duration(milliseconds: 1500), () {
         context.read<gameState>().computerPlay();
       });
     } else {
       game.isComputerTurn = false;
     }
-    Future.delayed(Duration(milliseconds: 500), () {
+    Future.delayed(Duration(milliseconds: 1500), () {
       context.read<gameState>().setSystem();
       context.read<gameState>().winnerSystem();
-      context.read<gameState>().resetGame();
     });
 
     return Column(
@@ -308,30 +326,67 @@ class randomNumber extends StatelessWidget {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            runAlignment: WrapAlignment.center,
-            children: [
-              Icon(Icons.emoji_events, color: Colors.amber, size: 30),
-              SizedBox(width: 10),
-              Text(
-                '${game.winStatement}',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  fontStyle: FontStyle.normal,
-                  foreground: Paint()
-                    ..style = PaintingStyle.fill
-                    ..strokeWidth = 5
-                    ..color = const Color.fromARGB(255, 235, 11, 22),
-                ),
-              ),
-              SizedBox(width: 10),
-              Icon(Icons.emoji_events, color: Colors.amber, size: 30),
-            ],
-          ),
+        Column(
+          children: [
+            Wrap(
+              alignment: WrapAlignment.center,
+              runAlignment: WrapAlignment.center,
+              children: [
+                Icon(Icons.emoji_events, color: Colors.amber, size: 30),
+                SizedBox(height: 30),
+                if (game.vanarBalakSide - game.computerSide >= 0)
+                  Text(
+                    'Vanar Balak winning by ${game.vanarBalakSide - game.computerSide}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
+                      fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.normal,
+                      foreground: Paint()
+                        ..style = PaintingStyle.fill
+                        ..strokeWidth = 5
+                        ..color = const Color.fromARGB(255, 235, 11, 22),
+                    ),
+                  ),
+                if (game.vanarBalakSide - game.computerSide < 0)
+                  Text(
+                    'Vanar Balak loosing by ${game.computerSide - game.vanarBalakSide}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
+                      fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.normal,
+                      foreground: Paint()
+                        ..style = PaintingStyle.fill
+                        ..strokeWidth = 5
+                        ..color = const Color.fromARGB(255, 235, 11, 22),
+                    ),
+                  ),
+
+                SizedBox(height: 30),
+                Icon(Icons.emoji_events, color: Colors.amber, size: 30),
+                SizedBox(height: 100),
+                if (game.setVictoryMargin > 0)
+                  Text(
+                    'set ${game.totalSet - 1} won by Vanar Balak',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                if (game.setVictoryMargin < 0)
+                  Text(
+                    'Set ${game.totalSet - 1} won by Vanar Balak',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ),
       ],
     );
@@ -354,9 +409,9 @@ class vanarBalakNumber extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.05,
+            height: MediaQuery.of(context).size.height * 0.15,
             child: ListView(
-              scrollDirection: Axis.horizontal,
+              scrollDirection: Axis.vertical,
               children: [
                 ...List.generate(
                   context.watch<gameState>().vanarNumberAdded.length,
@@ -438,9 +493,9 @@ class ComputerNumber extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.05,
+            height: MediaQuery.of(context).size.height * 0.15,
             child: ListView(
-              scrollDirection: Axis.horizontal,
+              scrollDirection: Axis.vertical,
               children: [
                 ...List.generate(
                   context.watch<gameState>().computerNumberAdded.length,
@@ -503,6 +558,41 @@ class ComputerNumber extends StatelessWidget {
                 }).toList(),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class winnerPage extends StatelessWidget {
+  const winnerPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final winText = context.read<gameState>().winStatement;
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: double.infinity,
+            color: theme.colorScheme.primaryContainer,
+            child: Text(
+              winText,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.width * 0.10,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.read<gameState>().resetGame();
+            },
+            child: Text("Reset"),
           ),
         ],
       ),
