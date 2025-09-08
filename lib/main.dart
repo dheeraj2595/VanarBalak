@@ -258,6 +258,17 @@ class randomNumber extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        ElevatedButton.icon(
+          onPressed: () {
+            showDialog(
+              context: context,
+              barrierDismissible: true,
+              builder: (_) => const InstructionsPage(),
+            );
+          },
+          label: Text("Instructions"),
+        ),
+        SizedBox(height: 80),
         Text(
           '${game.totalSet} out of 10 Sets',
           style: TextStyle(
@@ -595,6 +606,48 @@ class winnerPage extends StatelessWidget {
             child: Text("Reset"),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class InstructionsPage extends StatelessWidget {
+  const InstructionsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Container(
+                  child: Text(
+                    "1. You are Vanar Balak and you need to win against dushman! You win by getting the highest possible number in a set composed of 10 rounds.\n"
+                    "2. A random number is generated from the void in each round and you can either keep it or give it to dushman and the next round turn will belong to dushman.\n"
+                    "3. A new number from the void, Dushman in their turn can also keep or give the number in that round to you.\n "
+                    "4. Your numbers will add up in your score and dushman's in their score.\n"
+                    "5. Also, both parties can keep only 5 numbers with themselves. That means if you have 5 numbers added up already in this set,\n"
+                    "Then you cannot take the number in your round and Dusham cannot give you the number in his round.\n"
+                    "6. The one to score the maximum number will win the set.\n"
+                    "\n"
+                    "-> 1 Set = 10 Rounds\n"
+                    "-> Total sets = 10\n"
+                    "\n"
+                    "Best of luck Vanar Balak!",
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.020,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
