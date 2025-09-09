@@ -29,6 +29,24 @@ class gameState extends ChangeNotifier {
   List<String> vanarNumberAdded = [];
   List<String> computerNumberAdded = [];
   int setVictoryMargin = 0;
+  int totalWinGame = 0;
+  int totalLooseGame = 0;
+  int gameWinStreak = 0;
+  int finalGameWinStreak = 0;
+  int gameLooseStreak = 0;
+  int finalGameLooseStreak = 0;
+  int totalTieGame = 0;
+  int vanarStreakScore = 0;
+  int computerStreakScore = 0;
+  int playerFinalScore = 0;
+  int maxWinMargin = 0;
+  int maxLooseMargin = 0;
+  int winMargin = 0;
+  int looseMargin = 0;
+  String playerName = "";
+  int finalMiniWinStreak = 0;
+  int halfGameWin = 0;
+  int halfGameLoose = 0;
 
   gameState() : masterNumber = Random().nextInt(1000);
 
@@ -52,6 +70,7 @@ class gameState extends ChangeNotifier {
 
   void updateMasterNumber() {
     masterNumber = bellWithRareExtremes(1000);
+    gameStats();
     notifyListeners();
   }
 
@@ -74,8 +93,16 @@ class gameState extends ChangeNotifier {
     if (setNumber >= 10) {
       if (vanarBalakSide > computerSide) {
         vanarScore = vanarScore + 1;
+        winMargin = vanarBalakSide - computerSide;
+        if (maxWinMargin < winMargin) {
+          maxWinMargin = winMargin;
+        }
       } else if (computerSide > vanarBalakSide) {
         computerScore = computerScore + 1;
+        looseMargin = computerSide - vanarBalakSide;
+        if (maxLooseMargin < looseMargin) {
+          maxLooseMargin = looseMargin;
+        }
       } else {
         vanarScore = vanarScore + 0.5;
         computerScore = computerScore + 0.5;
@@ -113,21 +140,61 @@ class gameState extends ChangeNotifier {
   }
 
   void resetGame() {
-    if (winnerVanar == 1 || winnerComputer == 1 || winnerBoth == 1) {
-      computerSide = 0;
-      vanarBalakSide = 0;
-      masterNumber = 0;
-      totalSet = 1;
-      setNumber = 0;
-      vanarScore = 0;
-      computerScore = 0;
-      vanarBalakDigit = 0;
-      computerDigit = 0;
-      winnerVanar = 0;
-      winnerComputer = 0;
-      winnerBoth = 0;
-      notifyListeners();
+    computerSide = 0;
+    vanarBalakSide = 0;
+    masterNumber = 0;
+    totalSet = 1;
+    setNumber = 0;
+    vanarScore = 0;
+    computerScore = 0;
+    vanarBalakDigit = 0;
+    computerDigit = 0;
+    winnerVanar = 0;
+    winnerComputer = 0;
+    winnerBoth = 0;
+    notifyListeners();
+  }
+
+  void gameStats() {
+    if (winnerVanar == 1) {
+      totalWinGame = totalWinGame + 1;
+      gameWinStreak = gameWinStreak + 1;
+      playerFinalScore = playerFinalScore + 50;
     }
+    if (winnerComputer == 1) {
+      totalLooseGame = totalLooseGame + 1;
+      gameLooseStreak = gameLooseStreak + 1;
+      playerFinalScore = playerFinalScore - 40;
+    }
+    if (winnerBoth == 1) {
+      totalTieGame = totalTieGame + 1;
+      playerFinalScore = playerFinalScore + 20;
+    }
+    if (gameWinStreak == 3) {
+      finalGameWinStreak = finalGameWinStreak + 1;
+      gameWinStreak = 0;
+      playerFinalScore = playerFinalScore + 300;
+    }
+    if (gameWinStreak == 2) {
+      finalMiniWinStreak = finalMiniWinStreak + 1;
+      playerFinalScore = playerFinalScore + 150;
+    }
+    if (gameLooseStreak == 3) {
+      finalGameLooseStreak = finalGameLooseStreak + 1;
+      gameLooseStreak = 0;
+      playerFinalScore = playerFinalScore - 250;
+    }
+    if (setNumber / 5 == 1 || setNumber / 5 == 2) {
+      if (vanarBalakSide > computerSide) {
+        halfGameWin = halfGameWin + 1;
+        playerFinalScore = playerFinalScore + 20;
+      }
+      if (computerSide > vanarBalakSide) {
+        halfGameLoose = halfGameLoose + 1;
+        playerFinalScore = playerFinalScore - 10;
+      }
+    }
+    notifyListeners();
   }
 
   void takeNumber() {
@@ -260,6 +327,7 @@ class randomNumber extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        Text("🐒", style: TextStyle(fontSize: 24)),
         ElevatedButton.icon(
           onPressed: () {
             showDialog(
@@ -269,6 +337,16 @@ class randomNumber extends StatelessWidget {
             );
           },
           label: Text("Instructions"),
+        ),
+        ElevatedButton.icon(
+          onPressed: () {
+            showDialog(
+              context: context,
+              barrierDismissible: true,
+              builder: (_) => const matchStats(),
+            );
+          },
+          label: Text("Vanar Records", textAlign: TextAlign.center),
         ),
         SizedBox(height: 80),
         Text(
@@ -650,6 +728,69 @@ class InstructionsPage extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class matchStats extends StatelessWidget {
+  const matchStats({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final totalWinGame = context.read<gameState>().totalWinGame;
+    final totalLooseGame = context.read<gameState>().totalLooseGame;
+    final finalGameWinStreak = context.read<gameState>().finalGameWinStreak;
+    final finalGameLooseStreak = context.read<gameState>().finalGameLooseStreak;
+    final playerFinalScore = context.read<gameState>().playerFinalScore;
+    final maxWinMargin = context.read<gameState>().maxWinMargin;
+    final maxLooseMargin = context.read<gameState>().maxLooseMargin;
+    final finalMiniWinStreak = context.read<gameState>().finalMiniWinStreak;
+    final halfGameWin = context.read<gameState>().halfGameWin;
+    final halfGameLoose = context.read<gameState>().halfGameLoose;
+    final totalTieGame = context.read<gameState>().totalTieGame;
+
+    return Dialog(
+      child: Container(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Container(
+                  child: Text(
+                    "Grand Score : $playerFinalScore",
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.05,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Text(
+                  "\n"
+                  "Total games won [+50]: $totalWinGame \n"
+                  "Total games lost [-40]: $totalLooseGame \n"
+                  "Total game tie [+20]: $totalTieGame \n"
+                  "\n"
+                  "Total Half Game wins [+20]: $halfGameWin \n"
+                  "Total Half Game lost [-10]: $halfGameLoose \n"
+                  "\n"
+                  "Game mini streak (2 wins in a row) [+150]: $finalMiniWinStreak \n"
+                  "Game Streaks (3 wins in a row) [+300]: $finalGameWinStreak \n"
+                  "Loosing streak (lost 3 rounds in a row) [-250]: $finalGameLooseStreak \n"
+                  "\n"
+                  "Maximum win margin: $maxWinMargin \n"
+                  "Maximum loose margin: $maxLooseMargin \n",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.03,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
