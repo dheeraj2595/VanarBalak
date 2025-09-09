@@ -49,6 +49,19 @@ class gameState extends ChangeNotifier {
   int halfGameLoose = 0;
   int totalRoundsWon = 0;
   int totalRoundsLost = 0;
+  int vanarRoundStreakCounter = 0;
+  int computerRoundStreakCounter = 0;
+  int miniRoundStreak = 0;
+  int roundStreak = 0;
+  int heavyRoundStreak = 0;
+  int legendaryWin = 0;
+  int wipeOut = 0;
+  int miniRoundStreakL = 0;
+  int roundStreakL = 0;
+  int heavyRoundStreakL = 0;
+  int legendaryWinL = 0;
+  int wipeOutL = 0;
+  int gameScore = 0;
 
   gameState() : masterNumber = Random().nextInt(1000);
 
@@ -95,23 +108,69 @@ class gameState extends ChangeNotifier {
     if (setNumber >= 10) {
       if (vanarBalakSide > computerSide) {
         vanarScore = vanarScore + 1;
+        vanarRoundStreakCounter = vanarRoundStreakCounter + 1;
+        computerRoundStreakCounter = 0;
         totalRoundsWon = totalRoundsWon + 1;
         playerFinalScore = playerFinalScore + 40;
         winMargin = vanarBalakSide - computerSide;
         if (maxWinMargin < winMargin) {
           maxWinMargin = winMargin;
         }
+        if (vanarRoundStreakCounter == 2) {
+          miniRoundStreak = miniRoundStreak + 1;
+          playerFinalScore = playerFinalScore + 30;
+        }
+        if (vanarRoundStreakCounter == 3) {
+          roundStreak = roundStreak + 1;
+          playerFinalScore = playerFinalScore + 80;
+        }
+        if (vanarRoundStreakCounter == 5) {
+          heavyRoundStreak = heavyRoundStreak + 1;
+          playerFinalScore = playerFinalScore + 150;
+        }
+        if (vanarRoundStreakCounter == 7) {
+          legendaryWin = legendaryWin + 1;
+          playerFinalScore = playerFinalScore + 200;
+        }
+        if (vanarRoundStreakCounter == 10) {
+          wipeOut = wipeOut + 1;
+          playerFinalScore = playerFinalScore + 500;
+        }
       } else if (computerSide > vanarBalakSide) {
         computerScore = computerScore + 1;
+        computerRoundStreakCounter = computerRoundStreakCounter + 1;
+        vanarRoundStreakCounter = 0;
         totalRoundsLost = totalRoundsLost + 1;
         playerFinalScore = playerFinalScore - 30;
         looseMargin = computerSide - vanarBalakSide;
         if (maxLooseMargin < looseMargin) {
           maxLooseMargin = looseMargin;
         }
+        if (computerRoundStreakCounter == 2) {
+          miniRoundStreakL = miniRoundStreakL + 1;
+          playerFinalScore = playerFinalScore - 30;
+        }
+        if (computerRoundStreakCounter == 3) {
+          roundStreakL = roundStreakL + 1;
+          playerFinalScore = playerFinalScore - 80;
+        }
+        if (computerRoundStreakCounter == 5) {
+          heavyRoundStreakL = heavyRoundStreakL + 1;
+          playerFinalScore = playerFinalScore - 150;
+        }
+        if (computerRoundStreakCounter == 7) {
+          legendaryWinL = legendaryWinL + 1;
+          playerFinalScore = playerFinalScore - 200;
+        }
+        if (computerRoundStreakCounter == 10) {
+          wipeOutL = wipeOutL + 1;
+          playerFinalScore = playerFinalScore - 500;
+        }
       } else {
         vanarScore = vanarScore + 0.5;
         computerScore = computerScore + 0.5;
+        vanarRoundStreakCounter = 0;
+        computerRoundStreakCounter = 0;
       }
       setVictoryMargin = vanarBalakSide - computerSide;
       computerSide = 0;
@@ -132,16 +191,18 @@ class gameState extends ChangeNotifier {
       if (vanarScore > computerScore) {
         winnerVanar = 1;
         winStatement =
-            "Vanar Balak is the ultimate winner."; // Vanar Balak is the overall winner
+            "Vanar Balak reigns supreme! 🐒🔥"; // Vanar Balak is the overall winner
       } else if (computerScore > vanarScore) {
         winnerComputer = 1;
         winStatement =
-            "Dushman is the ultimate winner."; // Computer is the overall winner
+            "The Dushman seizes victory! ⚔️ "; // Computer is the overall winner
       } else {
         winnerBoth = 1;
-        winStatement = "It's a tie."; // It's a tie overall
+        winStatement =
+            "The battle continues in a stalemate ."; // It's a tie overall
       }
       gameStats();
+      gameScore = playerFinalScore;
       notifyListeners();
     }
   }
@@ -166,16 +227,16 @@ class gameState extends ChangeNotifier {
     if (winnerVanar == 1) {
       totalWinGame = totalWinGame + 1;
       gameWinStreak = gameWinStreak + 1;
-      playerFinalScore = playerFinalScore + 80;
+      playerFinalScore = playerFinalScore + 200;
     }
     if (winnerComputer == 1) {
       totalLooseGame = totalLooseGame + 1;
       gameLooseStreak = gameLooseStreak + 1;
-      playerFinalScore = playerFinalScore - 70;
+      playerFinalScore = playerFinalScore - 150;
     }
     if (winnerBoth == 1) {
       totalTieGame = totalTieGame + 1;
-      playerFinalScore = playerFinalScore + 40;
+      playerFinalScore = playerFinalScore + 100;
     }
     if (gameWinStreak == 3) {
       finalGameWinStreak = finalGameWinStreak + 1;
@@ -672,6 +733,14 @@ class winnerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final winText = context.read<gameState>().winStatement;
+    final vanarScore = context.read<gameState>().vanarScore;
+    final computerScore = context.read<gameState>().computerScore;
+    final winnerVanar = context.read<gameState>().winnerVanar;
+    final winnerComputer = context.read<gameState>().winnerComputer;
+    final winnerBoth = context.read<gameState>().winnerBoth;
+    final playerFinalScore = context.read<gameState>().playerFinalScore;
+    final gameScore = context.read<gameState>().gameScore;
+
     return Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -680,7 +749,8 @@ class winnerPage extends StatelessWidget {
             width: double.infinity,
             color: theme.colorScheme.primaryContainer,
             child: Text(
-              winText,
+              "$winText\n"
+              "$vanarScore - $computerScore",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -688,6 +758,70 @@ class winnerPage extends StatelessWidget {
               ),
             ),
           ),
+          if (winnerVanar == 1)
+            Text(
+              " + 200 points",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.width * 0.03,
+              ),
+            ),
+          if (winnerComputer == 1)
+            Text(
+              "-150 points",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.width * 0.03,
+              ),
+            ),
+          if (winnerBoth == 1)
+            Text(
+              "+100 points",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.width * 0.03,
+              ),
+            ),
+          SizedBox(height: 30),
+          Container(
+            color: theme.colorScheme.secondaryContainer,
+            child: Text(
+              "Grand Score : $playerFinalScore",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: MediaQuery.of(context).size.width * 0.06,
+              ),
+            ),
+          ),
+          if (gameScore >= 0)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "(Increased by $gameScore in this game)",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: MediaQuery.of(context).size.width * 0.04,
+                ),
+              ),
+            ),
+          if (gameScore < 0)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "(Decreased by $gameScore in this game)",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: MediaQuery.of(context).size.width * 0.04,
+                ),
+              ),
+            ),
+          SizedBox(height: 30),
           ElevatedButton(
             onPressed: () {
               context.read<gameState>().resetGame();
@@ -760,6 +894,16 @@ class matchStats extends StatelessWidget {
     final totalTieGame = context.read<gameState>().totalTieGame;
     final totalRoundsWon = context.read<gameState>().totalRoundsWon;
     final totalRoundsLost = context.read<gameState>().totalRoundsLost;
+    final miniRoundStreak = context.read<gameState>().miniRoundStreak;
+    final roundStreak = context.read<gameState>().roundStreak;
+    final heavyRoundStreak = context.read<gameState>().heavyRoundStreak;
+    final legendaryWin = context.read<gameState>().legendaryWin;
+    final wipeOut = context.read<gameState>().wipeOut;
+    final miniRoundStreakL = context.read<gameState>().miniRoundStreakL;
+    final roundStreakL = context.read<gameState>().roundStreakL;
+    final heavyRoundStreakL = context.read<gameState>().heavyRoundStreakL;
+    final legendaryWinL = context.read<gameState>().legendaryWinL;
+    final wipeOutL = context.read<gameState>().wipeOutL;
 
     return Dialog(
       child: Container(
@@ -779,9 +923,9 @@ class matchStats extends StatelessWidget {
                 ),
                 Text(
                   "\n"
-                  "Total games won [+80]: $totalWinGame \n"
-                  "Total games lost [-70]: $totalLooseGame \n"
-                  "Total game tie [+40]: $totalTieGame \n"
+                  "Total games won [+200]: $totalWinGame \n"
+                  "Total games lost [-150]: $totalLooseGame \n"
+                  "Total game tie [+100]: $totalTieGame \n"
                   "\n"
                   "Total Rounds Won [+40]: $totalRoundsWon \n"
                   "total Rounds Lost [-30]: $totalRoundsLost \n"
@@ -789,9 +933,23 @@ class matchStats extends StatelessWidget {
                   "Total Half Rounds wins [+20]: $halfGameWin \n"
                   "Total Half Rounds lost [-20]: $halfGameLoose \n"
                   "\n"
-                  "Game mini streak (2 wins in a row) [+150]: $finalMiniWinStreak \n"
-                  "Game Streaks (3 wins in a row) [+300]: $finalGameWinStreak \n"
-                  "Loosing streak (lost 3 rounds in a row) [-250]: $finalGameLooseStreak \n"
+                  "Winning round streaks: \n"
+                  "Round Mini Streak (2 wins in a row) [+30]: $miniRoundStreak \n"
+                  "Round Streak (3 wins in a row) [+80]: $roundStreak \n"
+                  "Heavy Round Streak: (5 wins in a row) [+150]: $heavyRoundStreak \n"
+                  "Legendary win (7 wins in a row) [+200]: $legendaryWin \n"
+                  "Wipe out win (10 wins in a row) [+500]: $wipeOut \n"
+                  "\n"
+                  "Loosing Round streaks: \n"
+                  "Round loosing Mini Streak (2 losses in a row) [-30]: $miniRoundStreakL \n"
+                  "Round loosing Streak (3 losses in a row) [-80]: $roundStreakL \n"
+                  "Heavy Round loosing Streak: (5 losses in a row) [-150]: $heavyRoundStreakL \n"
+                  "Legendary loss (7 losses in a row) [-200]: $legendaryWinL \n"
+                  "Wipe out loss (10 losses in a row) [-500]: $wipeOutL \n"
+                  "\n"
+                  "Game mini streak (2 wins in a row) [+300]: $finalMiniWinStreak \n"
+                  "Game Streaks (3 wins in a row) [+600]: $finalGameWinStreak \n"
+                  "Loosing streak (lost 3 rounds in a row) [-500]: $finalGameLooseStreak \n"
                   "\n"
                   "Maximum win margin: $maxWinMargin \n"
                   "Maximum loose margin: $maxLooseMargin \n",
