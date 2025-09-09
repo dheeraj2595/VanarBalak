@@ -47,6 +47,8 @@ class gameState extends ChangeNotifier {
   int finalMiniWinStreak = 0;
   int halfGameWin = 0;
   int halfGameLoose = 0;
+  int totalRoundsWon = 0;
+  int totalRoundsLost = 0;
 
   gameState() : masterNumber = Random().nextInt(1000);
 
@@ -93,12 +95,16 @@ class gameState extends ChangeNotifier {
     if (setNumber >= 10) {
       if (vanarBalakSide > computerSide) {
         vanarScore = vanarScore + 1;
+        totalRoundsWon = totalRoundsWon + 1;
+        playerFinalScore = playerFinalScore + 40;
         winMargin = vanarBalakSide - computerSide;
         if (maxWinMargin < winMargin) {
           maxWinMargin = winMargin;
         }
       } else if (computerSide > vanarBalakSide) {
         computerScore = computerScore + 1;
+        totalRoundsLost = totalRoundsLost + 1;
+        playerFinalScore = playerFinalScore - 30;
         looseMargin = computerSide - vanarBalakSide;
         if (maxLooseMargin < looseMargin) {
           maxLooseMargin = looseMargin;
@@ -135,6 +141,7 @@ class gameState extends ChangeNotifier {
         winnerBoth = 1;
         winStatement = "It's a tie."; // It's a tie overall
       }
+      gameStats();
       notifyListeners();
     }
   }
@@ -159,16 +166,16 @@ class gameState extends ChangeNotifier {
     if (winnerVanar == 1) {
       totalWinGame = totalWinGame + 1;
       gameWinStreak = gameWinStreak + 1;
-      playerFinalScore = playerFinalScore + 50;
+      playerFinalScore = playerFinalScore + 80;
     }
     if (winnerComputer == 1) {
       totalLooseGame = totalLooseGame + 1;
       gameLooseStreak = gameLooseStreak + 1;
-      playerFinalScore = playerFinalScore - 40;
+      playerFinalScore = playerFinalScore - 70;
     }
     if (winnerBoth == 1) {
       totalTieGame = totalTieGame + 1;
-      playerFinalScore = playerFinalScore + 20;
+      playerFinalScore = playerFinalScore + 40;
     }
     if (gameWinStreak == 3) {
       finalGameWinStreak = finalGameWinStreak + 1;
@@ -191,7 +198,7 @@ class gameState extends ChangeNotifier {
       }
       if (computerSide > vanarBalakSide) {
         halfGameLoose = halfGameLoose + 1;
-        playerFinalScore = playerFinalScore - 10;
+        playerFinalScore = playerFinalScore - 20;
       }
     }
     notifyListeners();
@@ -751,6 +758,8 @@ class matchStats extends StatelessWidget {
     final halfGameWin = context.read<gameState>().halfGameWin;
     final halfGameLoose = context.read<gameState>().halfGameLoose;
     final totalTieGame = context.read<gameState>().totalTieGame;
+    final totalRoundsWon = context.read<gameState>().totalRoundsWon;
+    final totalRoundsLost = context.read<gameState>().totalRoundsLost;
 
     return Dialog(
       child: Container(
@@ -770,12 +779,15 @@ class matchStats extends StatelessWidget {
                 ),
                 Text(
                   "\n"
-                  "Total games won [+50]: $totalWinGame \n"
-                  "Total games lost [-40]: $totalLooseGame \n"
-                  "Total game tie [+20]: $totalTieGame \n"
+                  "Total games won [+80]: $totalWinGame \n"
+                  "Total games lost [-70]: $totalLooseGame \n"
+                  "Total game tie [+40]: $totalTieGame \n"
                   "\n"
-                  "Total Half Game wins [+20]: $halfGameWin \n"
-                  "Total Half Game lost [-10]: $halfGameLoose \n"
+                  "Total Rounds Won [+40]: $totalRoundsWon \n"
+                  "total Rounds Lost [-30]: $totalRoundsLost \n"
+                  "\n"
+                  "Total Half Rounds wins [+20]: $halfGameWin \n"
+                  "Total Half Rounds lost [-20]: $halfGameLoose \n"
                   "\n"
                   "Game mini streak (2 wins in a row) [+150]: $finalMiniWinStreak \n"
                   "Game Streaks (3 wins in a row) [+300]: $finalGameWinStreak \n"
