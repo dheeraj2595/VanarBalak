@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'sounds.dart';
 
 void main() {
   runApp(
@@ -290,6 +292,7 @@ class randomNumber extends StatelessWidget {
                   : () {
                       context.read<gameState>().takeNumber();
                       context.read<gameState>().updateMasterNumber();
+                      Sounds.playClickTake();
                     },
               child: Text('Take'),
             ),
@@ -302,6 +305,7 @@ class randomNumber extends StatelessWidget {
                     : () {
                         context.read<gameState>().giveNumber();
                         context.read<gameState>().updateMasterNumber();
+                        Sounds.playClickGive();
                       },
                 child: Text('give'),
               ),
@@ -388,7 +392,7 @@ class randomNumber extends StatelessWidget {
                   ),
                 if (game.setVictoryMargin < 0)
                   Text(
-                    'Set ${game.totalSet - 1} won by Vanar Balak',
+                    'Set ${game.totalSet - 1} won by Dushman',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: MediaQuery.of(context).size.width * 0.03,
