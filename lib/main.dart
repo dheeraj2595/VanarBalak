@@ -13,7 +13,7 @@ void main() {
 class gameState extends ChangeNotifier {
   int computerSide = 0;
   int vanarBalakSide = 0;
-  int masterNumber;
+  late int masterNumber;
   int totalSet = 1;
   int setNumber = 0;
   double vanarScore = 0;
@@ -44,6 +44,10 @@ class gameState extends ChangeNotifier {
   int winMargin = 0;
   int looseMargin = 0;
   String playerName = "";
+  List namePrefix = [];
+  List nameNoun = [];
+  List nameDevanagiriA = [];
+  List nameDevanagiriB = [];
   int finalMiniWinStreak = 0;
   int halfGameWin = 0;
   int halfGameLoose = 0;
@@ -63,7 +67,9 @@ class gameState extends ChangeNotifier {
   int wipeOutL = 0;
   int gameScore = 0;
 
-  gameState() : masterNumber = Random().nextInt(1000);
+  gameState() {
+    initializeGame();
+  }
 
   final Random random = Random();
   double bellLike({int samples = 6}) {
@@ -81,6 +87,53 @@ class gameState extends ChangeNotifier {
       double val = bellLike(samples: 6);
       return (val * (max)).round();
     }
+  }
+
+  void initializeGame() {
+    randomNameGenerate();
+    updateMasterNumber();
+
+    notifyListeners();
+  }
+
+  void randomNameGenerate() {
+    namePrefix = [
+      "शक्तिशाली",
+      "चालाक",
+      "वीर",
+      "स्वर्णिम",
+      "महान",
+      "निर्भीक",
+      "अदृश्य",
+      "अमर",
+      "अजेय",
+      "दिव्य",
+    ];
+    nameNoun = [
+      "योद्धा",
+      "रक्षक",
+      "राजा",
+      "नाग",
+      "बाघ",
+      "शेर",
+      "गरुड़",
+      "भूत",
+      "आत्मा",
+      "पर्वत",
+      "अग्नि",
+    ];
+    nameDevanagiriA = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
+    nameDevanagiriB = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
+    String prefix = namePrefix[random.nextInt(namePrefix.length)];
+    String noun = nameNoun[random.nextInt(nameNoun.length)];
+    String devanagiriA =
+        nameDevanagiriA[random.nextInt(nameDevanagiriA.length)];
+    String devanagiriB =
+        nameDevanagiriB[random.nextInt(nameDevanagiriB.length)];
+
+    playerName = prefix + noun + devanagiriA + devanagiriB;
+
+    notifyListeners();
   }
 
   void updateMasterNumber() {
@@ -113,6 +166,7 @@ class gameState extends ChangeNotifier {
         totalRoundsWon = totalRoundsWon + 1;
         playerFinalScore = playerFinalScore + 40;
         winMargin = vanarBalakSide - computerSide;
+        setVictoryMargin = vanarBalakSide - computerSide;
         if (maxWinMargin < winMargin) {
           maxWinMargin = winMargin;
         }
@@ -143,6 +197,7 @@ class gameState extends ChangeNotifier {
         totalRoundsLost = totalRoundsLost + 1;
         playerFinalScore = playerFinalScore - 30;
         looseMargin = computerSide - vanarBalakSide;
+        setVictoryMargin = vanarBalakSide - computerSide;
         if (maxLooseMargin < looseMargin) {
           maxLooseMargin = looseMargin;
         }
@@ -171,8 +226,8 @@ class gameState extends ChangeNotifier {
         computerScore = computerScore + 0.5;
         vanarRoundStreakCounter = 0;
         computerRoundStreakCounter = 0;
+        setVictoryMargin = 0;
       }
-      setVictoryMargin = vanarBalakSide - computerSide;
       computerSide = 0;
       vanarBalakSide = 0;
       setNumber = 0;
@@ -331,6 +386,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final playerName = context.read<gameState>().playerName;
+    final playerFinalScore = context.read<gameState>().playerFinalScore;
 
     return Scaffold(
       appBar: AppBar(
@@ -345,24 +402,53 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: theme.colorScheme.primary,
         centerTitle: true,
       ),
-      body: Row(
+      body: Column(
         children: [
-          Flexible(
-            child: Container(
-              color: theme.colorScheme.primaryContainer,
-              child: vanarBalakNumber(),
-            ),
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  child: Text(
+                    "🛡️Vanar Identity: $playerName",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  child: Text(
+                    "⚡Vanar Aura: $playerFinalScore",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
           ),
-          Flexible(
-            child: Container(
-              color: theme.colorScheme.primaryContainer,
-              child: randomNumber(),
-            ),
-          ),
-          Flexible(
-            child: Container(
-              color: theme.colorScheme.primaryContainer,
-              child: ComputerNumber(),
+          Expanded(
+            child: Row(
+              children: [
+                Flexible(
+                  child: Container(
+                    color: theme.colorScheme.primaryContainer,
+                    child: vanarBalakNumber(),
+                  ),
+                ),
+                Flexible(
+                  child: Container(
+                    color: theme.colorScheme.primaryContainer,
+                    child: randomNumber(),
+                  ),
+                ),
+                Flexible(
+                  child: Container(
+                    color: theme.colorScheme.primaryContainer,
+                    child: ComputerNumber(),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -526,7 +612,7 @@ class randomNumber extends StatelessWidget {
 
                 SizedBox(height: 30),
                 Icon(Icons.emoji_events, color: Colors.amber, size: 30),
-                SizedBox(height: 100),
+                SizedBox(height: 90),
                 if (game.setVictoryMargin > 0)
                   Text(
                     'set ${game.totalSet - 1} won by Vanar Balak',
@@ -914,7 +1000,7 @@ class matchStats extends StatelessWidget {
               children: [
                 Container(
                   child: Text(
-                    "Grand Score : $playerFinalScore",
+                    "Vanar Aura : $playerFinalScore",
                     style: TextStyle(
                       fontSize: MediaQuery.of(context).size.width * 0.05,
                       fontWeight: FontWeight.bold,
