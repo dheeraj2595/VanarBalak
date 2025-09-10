@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:vanarbalak/leaderBoardData.dart';
 import 'sounds.dart';
 
 void main() {
@@ -66,10 +67,14 @@ class gameState extends ChangeNotifier {
   int legendaryWinL = 0;
   int wipeOutL = 0;
   int gameScore = 0;
+  int leaderBoardScore = 0;
 
   gameState() {
     initializeGame();
   }
+
+  final List<leaderBoardData> _leaders = [];
+  List<leaderBoardData> get leaders => _leaders;
 
   final Random random = Random();
   double bellLike({int samples = 6}) {
@@ -140,6 +145,12 @@ class gameState extends ChangeNotifier {
     masterNumber = bellWithRareExtremes(1000);
     gameStats();
     notifyListeners();
+  }
+
+  void addLeader() {
+    _leaders.add(
+      leaderBoardData(leaderName: playerName, leaderScore: leaderBoardScore),
+    );
   }
 
   void computerPlay() {
@@ -234,6 +245,7 @@ class gameState extends ChangeNotifier {
       vanarBalakDigit = 0;
       computerDigit = 0;
       totalSet = totalSet + 1;
+      leaderBoardScore = playerFinalScore;
       moveHistory.clear();
       vanarNumberAdded.clear();
       computerNumberAdded.clear();
@@ -401,6 +413,36 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         backgroundColor: theme.colorScheme.primary,
         centerTitle: true,
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              child: Padding(
+                padding: const EdgeInsets.all(30.0),
+                child: Text(
+                  "Menu",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: MediaQuery.of(context).size.width * 0.05,
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.leaderboard),
+              title: Text("Leaderboard"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const leaderBoard()),
+                );
+              },
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -1050,6 +1092,44 @@ class matchStats extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class leaderBoard extends StatelessWidget {
+  const leaderBoard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final leaders = context.read<gameState>().leaders;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Vanar Balak",
+          style: TextStyle(
+            fontSize: theme.textTheme.headlineMedium!.fontSize,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.primary,
+        centerTitle: true,
+      ),
+      body: leaders.isEmpty
+          ? const Center(child: Text("No scores yet"))
+          : ListView.builder(
+              itemCount: leaders.length,
+              itemBuilder: (context, index) {
+                final leader = leaders[index];
+                return ListTile(
+                  leading: Text("#${index + 1}"),
+                  title: Text(leader.leaderName),
+                  trailing: Text(leader.leaderScore.toString()),
+                );
+              },
+            ),
     );
   }
 }
