@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vanarbalak/leaderBoardData.dart';
 import 'sounds.dart';
 
@@ -73,7 +74,7 @@ class gameState extends ChangeNotifier {
     initializeGame();
   }
 
-  final List<leaderBoardData> _leaders = [];
+  List<leaderBoardData> _leaders = [];
   List<leaderBoardData> get leaders => _leaders;
 
   final Random random = Random();
@@ -97,6 +98,7 @@ class gameState extends ChangeNotifier {
   void initializeGame() {
     randomNameGenerate();
     updateMasterNumber();
+    loadLeaders();
 
     notifyListeners();
   }
@@ -148,9 +150,32 @@ class gameState extends ChangeNotifier {
   }
 
   void addLeader() {
-    _leaders.add(
-      leaderBoardData(leaderName: playerName, leaderScore: leaderBoardScore),
+    final leaderBoardData newLeader = leaderBoardData(
+      leaderName: playerName,
+      leaderScore: playerFinalScore,
     );
+
+    _leaders.add(newLeader);
+
+    _leaders.sort((a, b) => b.leaderScore.compareTo(a.leaderScore));
+    saveLeaders();
+    notifyListeners();
+  }
+
+  Future<void> saveLeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String encoded = leaderBoardData.encode(_leaders);
+    await prefs.setString('leaderBoard', encoded);
+  }
+
+  Future<void> loadLeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? data = prefs.getString('leaderBoard');
+    if (data != null && data.isNotEmpty) {
+      _leaders = leaderBoardData.decode(data);
+      _leaders.sort((a, b) => b.leaderScore.compareTo(a.leaderScore));
+      notifyListeners();
+    }
   }
 
   void computerPlay() {
@@ -1102,7 +1127,7 @@ class leaderBoard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final leaders = context.read<gameState>().leaders;
+    final leaders = context.watch<gameState>().leaders;
 
     return Scaffold(
       appBar: AppBar(
