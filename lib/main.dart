@@ -457,12 +457,36 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               leading: Icon(Icons.leaderboard),
-              title: Text("Leaderboard"),
+              title: Text("Balak’s Scroll of Triumphs 📜"),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const leaderBoard()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.integration_instructions),
+              title: Text("🪶 The Sage’s Guidance"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const instructions()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.integration_instructions),
+              title: Text("⚡ The Balak’s Tally"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const VanarTallyPage(),
+                  ),
                 );
               },
             ),
@@ -679,7 +703,7 @@ class randomNumber extends StatelessWidget {
 
                 SizedBox(height: 30),
                 Icon(Icons.emoji_events, color: Colors.amber, size: 30),
-                SizedBox(height: 90),
+                SizedBox(height: 40),
                 if (game.setVictoryMargin > 0)
                   Text(
                     'set ${game.totalSet - 1} won by Vanar Balak',
@@ -992,38 +1016,58 @@ class InstructionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Dialog(
-      child: Container(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Container(
-                  child: Text(
-                    "1. You are Vanar Balak and you need to win against dushman! You win by getting the highest possible number in a set composed of 10 rounds.\n"
-                    "2. A random number is generated from the void in each round and you can either keep it or give it to dushman and the next round turn will belong to dushman.\n"
-                    "3. A new number from the void, Dushman in their turn can also keep or give the number in that round to you.\n "
-                    "4. Your numbers will add up in your score and dushman's in their score.\n"
-                    "5. Also, both parties can keep only 5 numbers with themselves. That means if you have 5 numbers added up already in this set,\n"
-                    "Then you cannot take the number in your round and Dusham cannot give you the number in his round.\n"
-                    "6. The one to score the maximum number will win the set.\n"
-                    "\n"
-                    "-> 1 Set = 10 Rounds\n"
-                    "-> Total sets = 10\n"
-                    "\n"
-                    "Best of luck Vanar Balak!",
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * 0.020,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+      child: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: [
+          ListTile(
+            leading: const Icon(Icons.person, color: Colors.brown),
+            title: const Text(
+              "You are Vanar Balak. Win by scoring the highest in a 10-round set.",
+            ),
           ),
-        ),
+          ListTile(
+            leading: const Icon(Icons.casino, color: Colors.blue),
+            title: const Text(
+              "Each round generates a random number from the void.",
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.swap_horiz, color: Colors.green),
+            title: const Text(
+              "You can keep the number or give it to Dushman and vice versa.",
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.exposure_plus_1, color: Colors.orange),
+            title: const Text("Both players can only keep 5 numbers per set."),
+          ),
+          ListTile(
+            leading: const Icon(Icons.emoji_events, color: Colors.red),
+            title: const Text(
+              "After 10 rounds, the higher total wins the set.",
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.bolt, color: Colors.purple),
+            title: const Text(
+              "Your score is called Vanar Aura ⚡. The stronger your aura, the closer you are to victory.",
+            ),
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: Text(
+              "⚔️ 1 Set = 10 Rounds\n🏆 Total Sets = 10\n🔥 May the best warrior win!",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1034,86 +1078,178 @@ class matchStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalWinGame = context.read<gameState>().totalWinGame;
-    final totalLooseGame = context.read<gameState>().totalLooseGame;
-    final finalGameWinStreak = context.read<gameState>().finalGameWinStreak;
-    final finalGameLooseStreak = context.read<gameState>().finalGameLooseStreak;
-    final playerFinalScore = context.read<gameState>().playerFinalScore;
-    final maxWinMargin = context.read<gameState>().maxWinMargin;
-    final maxLooseMargin = context.read<gameState>().maxLooseMargin;
-    final finalMiniWinStreak = context.read<gameState>().finalMiniWinStreak;
-    final halfGameWin = context.read<gameState>().halfGameWin;
-    final halfGameLoose = context.read<gameState>().halfGameLoose;
-    final totalTieGame = context.read<gameState>().totalTieGame;
-    final totalRoundsWon = context.read<gameState>().totalRoundsWon;
-    final totalRoundsLost = context.read<gameState>().totalRoundsLost;
-    final miniRoundStreak = context.read<gameState>().miniRoundStreak;
-    final roundStreak = context.read<gameState>().roundStreak;
-    final heavyRoundStreak = context.read<gameState>().heavyRoundStreak;
-    final legendaryWin = context.read<gameState>().legendaryWin;
-    final wipeOut = context.read<gameState>().wipeOut;
-    final miniRoundStreakL = context.read<gameState>().miniRoundStreakL;
-    final roundStreakL = context.read<gameState>().roundStreakL;
-    final heavyRoundStreakL = context.read<gameState>().heavyRoundStreakL;
-    final legendaryWinL = context.read<gameState>().legendaryWinL;
-    final wipeOutL = context.read<gameState>().wipeOutL;
+    final theme = Theme.of(context);
+    final game = context.read<gameState>();
 
     return Dialog(
       child: Container(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Container(
-                  child: Text(
-                    "Vanar Aura : $playerFinalScore",
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * 0.05,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              // Vanar Aura
+              Card(
+                color: theme.colorScheme.primaryContainer,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ListTile(
+                  leading: const Icon(Icons.bolt, color: Colors.yellow),
+                  title: const Text("Vanar Aura"),
+                  trailing: Text(
+                    game.playerFinalScore.toString(),
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
                   ),
                 ),
-                Text(
-                  "\n"
-                  "Total games won [+200]: $totalWinGame \n"
-                  "Total games lost [-150]: $totalLooseGame \n"
-                  "Total game tie [+100]: $totalTieGame \n"
-                  "\n"
-                  "Total Rounds Won [+40]: $totalRoundsWon \n"
-                  "total Rounds Lost [-30]: $totalRoundsLost \n"
-                  "\n"
-                  "Total Half Rounds wins [+20]: $halfGameWin \n"
-                  "Total Half Rounds lost [-20]: $halfGameLoose \n"
-                  "\n"
-                  "Winning round streaks: \n"
-                  "Round Mini Streak (2 wins in a row) [+30]: $miniRoundStreak \n"
-                  "Round Streak (3 wins in a row) [+80]: $roundStreak \n"
-                  "Heavy Round Streak: (5 wins in a row) [+150]: $heavyRoundStreak \n"
-                  "Legendary win (7 wins in a row) [+200]: $legendaryWin \n"
-                  "Wipe out win (10 wins in a row) [+500]: $wipeOut \n"
-                  "\n"
-                  "Loosing Round streaks: \n"
-                  "Round loosing Mini Streak (2 losses in a row) [-30]: $miniRoundStreakL \n"
-                  "Round loosing Streak (3 losses in a row) [-80]: $roundStreakL \n"
-                  "Heavy Round loosing Streak: (5 losses in a row) [-150]: $heavyRoundStreakL \n"
-                  "Legendary loss (7 losses in a row) [-200]: $legendaryWinL \n"
-                  "Wipe out loss (10 losses in a row) [-500]: $wipeOutL \n"
-                  "\n"
-                  "Game mini streak (2 wins in a row) [+300]: $finalMiniWinStreak \n"
-                  "Game Streaks (3 wins in a row) [+600]: $finalGameWinStreak \n"
-                  "Loosing streak (lost 3 rounds in a row) [-500]: $finalGameLooseStreak \n"
-                  "\n"
-                  "Maximum win margin: $maxWinMargin \n"
-                  "Maximum loose margin: $maxLooseMargin \n",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.03,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              const SizedBox(height: 12),
+
+              // Games Summary
+              Text("🎮 Game Summary", style: theme.textTheme.titleLarge),
+              ListTile(
+                leading: const Icon(Icons.emoji_events, color: Colors.green),
+                title: const Text("Total Games Won (+200 each)"),
+                trailing: Text("${game.totalWinGame}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.close, color: Colors.red),
+                title: const Text("Total Games Lost (-150 each)"),
+                trailing: Text("${game.totalLooseGame}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.handshake, color: Colors.orange),
+                title: const Text("Total Game Ties (+100 each)"),
+                trailing: Text("${game.totalTieGame}"),
+              ),
+              const Divider(),
+
+              // Round Summary
+              Text("⚔️ Round Summary", style: theme.textTheme.titleLarge),
+              ListTile(
+                leading: const Icon(Icons.add_circle, color: Colors.green),
+                title: const Text("Rounds Won (+40 each)"),
+                trailing: Text("${game.totalRoundsWon}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.remove_circle, color: Colors.red),
+                title: const Text("Rounds Lost (-30 each)"),
+                trailing: Text("${game.totalRoundsLost}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.flash_on, color: Colors.blue),
+                title: const Text("Half Rounds Won (+20 each)"),
+                trailing: Text("${game.halfGameWin}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.flash_off, color: Colors.redAccent),
+                title: const Text("Half Rounds Lost (-20 each)"),
+                trailing: Text("${game.halfGameLoose}"),
+              ),
+              const Divider(),
+
+              // Streaks
+              Text("🔥 Streaks (in a row)", style: theme.textTheme.titleLarge),
+              ListTile(
+                leading: const Icon(Icons.trending_up, color: Colors.purple),
+                title: const Text("Mini Streak (2 wins) +30"),
+                trailing: Text("${game.miniRoundStreak}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.auto_graph, color: Colors.purple),
+                title: const Text("Round Streak (3 wins) +80"),
+                trailing: Text("${game.roundStreak}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.whatshot, color: Colors.deepOrange),
+                title: const Text("Heavy Streak (5 wins) +150"),
+                trailing: Text("${game.heavyRoundStreak}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.emoji_events, color: Colors.amber),
+                title: const Text("Legendary Win (7 wins) +200"),
+                trailing: Text("${game.legendaryWin}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.king_bed, color: Colors.black),
+                title: const Text("Wipe Out (10 wins) +500"),
+                trailing: Text("${game.wipeOut}"),
+              ),
+              const Divider(),
+
+              // Loss Streaks
+              Text(
+                "💀 Loss Streaks (in a row)",
+                style: theme.textTheme.titleLarge,
+              ),
+              ListTile(
+                leading: const Icon(Icons.trending_down, color: Colors.red),
+                title: const Text("Mini Loss (2 losses) -30"),
+                trailing: Text("${game.miniRoundStreakL}"),
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.trending_down,
+                  color: Colors.redAccent,
                 ),
-              ],
-            ),
+                title: const Text("Loss Streak (3 losses) -80"),
+                trailing: Text("${game.roundStreakL}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.fireplace, color: Colors.deepOrange),
+                title: const Text("Heavy Loss (5 losses) -150"),
+                trailing: Text("${game.heavyRoundStreakL}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.brightness_5, color: Colors.black),
+                title: const Text("Legendary Loss (7 losses) -200"),
+                trailing: Text("${game.legendaryWinL}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.warning, color: Colors.red),
+                title: const Text("Wipe Out Loss (10 losses) -500"),
+                trailing: Text("${game.wipeOutL}"),
+              ),
+              const Divider(),
+
+              // Game Streaks
+              Text("🏆 Game Streaks", style: theme.textTheme.titleLarge),
+              ListTile(
+                leading: const Icon(
+                  Icons.stacked_line_chart,
+                  color: Colors.teal,
+                ),
+                title: const Text("Mini Streak (2 wins) +300"),
+                trailing: Text("${game.finalMiniWinStreak}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.show_chart, color: Colors.tealAccent),
+                title: const Text("Game Streak (3 wins) +600"),
+                trailing: Text("${game.finalGameWinStreak}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.block, color: Colors.grey),
+                title: const Text("Losing Streak (3 losses) -500"),
+                trailing: Text("${game.finalGameLooseStreak}"),
+              ),
+              const Divider(),
+
+              // Margins
+              Text("📏 Margins", style: theme.textTheme.titleLarge),
+              ListTile(
+                leading: const Icon(Icons.add, color: Colors.green),
+                title: const Text("Maximum Win Margin"),
+                trailing: Text("${game.maxWinMargin}"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.remove, color: Colors.red),
+                title: const Text("Maximum Loss Margin"),
+                trailing: Text("${game.maxLooseMargin}"),
+              ),
+            ],
           ),
         ),
       ),
@@ -1155,6 +1291,263 @@ class leaderBoard extends StatelessWidget {
                 );
               },
             ),
+    );
+  }
+}
+
+class VanarTallyPage extends StatelessWidget {
+  const VanarTallyPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final game = context.read<gameState>();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Vanar Balak Tally ⚡",
+          style: TextStyle(
+            fontSize: theme.textTheme.headlineMedium!.fontSize,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.primary,
+        centerTitle: true,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Vanar Aura
+          Card(
+            color: theme.colorScheme.primaryContainer,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: ListTile(
+              leading: const Icon(Icons.bolt, color: Colors.yellow),
+              title: const Text("Vanar Aura"),
+              trailing: Text(
+                game.playerFinalScore.toString(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Games Summary
+          Text("🎮 Game Summary", style: theme.textTheme.titleLarge),
+          ListTile(
+            leading: const Icon(Icons.emoji_events, color: Colors.green),
+            title: const Text("Total Games Won (+200 each)"),
+            trailing: Text("${game.totalWinGame}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.close, color: Colors.red),
+            title: const Text("Total Games Lost (-150 each)"),
+            trailing: Text("${game.totalLooseGame}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.handshake, color: Colors.orange),
+            title: const Text("Total Game Ties (+100 each)"),
+            trailing: Text("${game.totalTieGame}"),
+          ),
+          const Divider(),
+
+          // Round Summary
+          Text("⚔️ Round Summary", style: theme.textTheme.titleLarge),
+          ListTile(
+            leading: const Icon(Icons.add_circle, color: Colors.green),
+            title: const Text("Rounds Won (+40 each)"),
+            trailing: Text("${game.totalRoundsWon}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.remove_circle, color: Colors.red),
+            title: const Text("Rounds Lost (-30 each)"),
+            trailing: Text("${game.totalRoundsLost}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.flash_on, color: Colors.blue),
+            title: const Text("Half Rounds Won (+20 each)"),
+            trailing: Text("${game.halfGameWin}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.flash_off, color: Colors.redAccent),
+            title: const Text("Half Rounds Lost (-20 each)"),
+            trailing: Text("${game.halfGameLoose}"),
+          ),
+          const Divider(),
+
+          // Streaks
+          Text("🔥 Streaks (in a row)", style: theme.textTheme.titleLarge),
+          ListTile(
+            leading: const Icon(Icons.trending_up, color: Colors.purple),
+            title: const Text("Mini Streak (2 wins) +30"),
+            trailing: Text("${game.miniRoundStreak}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.auto_graph, color: Colors.purple),
+            title: const Text("Round Streak (3 wins) +80"),
+            trailing: Text("${game.roundStreak}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.whatshot, color: Colors.deepOrange),
+            title: const Text("Heavy Streak (5 wins) +150"),
+            trailing: Text("${game.heavyRoundStreak}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.emoji_events, color: Colors.amber),
+            title: const Text("Legendary Win (7 wins) +200"),
+            trailing: Text("${game.legendaryWin}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.king_bed, color: Colors.black),
+            title: const Text("Wipe Out (10 wins) +500"),
+            trailing: Text("${game.wipeOut}"),
+          ),
+          const Divider(),
+
+          // Loss Streaks
+          Text("💀 Loss Streaks (in a row)", style: theme.textTheme.titleLarge),
+          ListTile(
+            leading: const Icon(Icons.trending_down, color: Colors.red),
+            title: const Text("Mini Loss (2 losses) -30"),
+            trailing: Text("${game.miniRoundStreakL}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.trending_down, color: Colors.redAccent),
+            title: const Text("Loss Streak (3 losses) -80"),
+            trailing: Text("${game.roundStreakL}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.fireplace, color: Colors.deepOrange),
+            title: const Text("Heavy Loss (5 losses) -150"),
+            trailing: Text("${game.heavyRoundStreakL}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.brightness_5, color: Colors.black),
+            title: const Text("Legendary Loss (7 losses) -200"),
+            trailing: Text("${game.legendaryWinL}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.warning, color: Colors.red),
+            title: const Text("Wipe Out Loss (10 losses) -500"),
+            trailing: Text("${game.wipeOutL}"),
+          ),
+          const Divider(),
+
+          // Game Streaks
+          Text("🏆 Game Streaks", style: theme.textTheme.titleLarge),
+          ListTile(
+            leading: const Icon(Icons.stacked_line_chart, color: Colors.teal),
+            title: const Text("Mini Streak (2 wins) +300"),
+            trailing: Text("${game.finalMiniWinStreak}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.show_chart, color: Colors.tealAccent),
+            title: const Text("Game Streak (3 wins) +600"),
+            trailing: Text("${game.finalGameWinStreak}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.block, color: Colors.grey),
+            title: const Text("Losing Streak (3 losses) -500"),
+            trailing: Text("${game.finalGameLooseStreak}"),
+          ),
+          const Divider(),
+
+          // Margins
+          Text("📏 Margins", style: theme.textTheme.titleLarge),
+          ListTile(
+            leading: const Icon(Icons.add, color: Colors.green),
+            title: const Text("Maximum Win Margin"),
+            trailing: Text("${game.maxWinMargin}"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.remove, color: Colors.red),
+            title: const Text("Maximum Loss Margin"),
+            trailing: Text("${game.maxLooseMargin}"),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class instructions extends StatelessWidget {
+  const instructions({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Vanar Balak",
+          style: TextStyle(
+            fontSize: theme.textTheme.headlineMedium!.fontSize,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.primary,
+        centerTitle: true,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: [
+          ListTile(
+            leading: const Icon(Icons.person, color: Colors.brown),
+            title: const Text(
+              "You are Vanar Balak. Win by scoring the highest in a 10-round set.",
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.casino, color: Colors.blue),
+            title: const Text(
+              "Each round generates a random number from the void.",
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.swap_horiz, color: Colors.green),
+            title: const Text(
+              "You can keep the number or give it to Dushman and vice versa.",
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.exposure_plus_1, color: Colors.orange),
+            title: const Text("Both players can only keep 5 numbers per set."),
+          ),
+          ListTile(
+            leading: const Icon(Icons.emoji_events, color: Colors.red),
+            title: const Text(
+              "After 10 rounds, the higher total wins the set.",
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.bolt, color: Colors.purple),
+            title: const Text(
+              "Your score is called Vanar Aura ⚡. The stronger your aura, the closer you are to victory.",
+            ),
+          ),
+          const SizedBox(height: 20),
+          Center(
+            child: Text(
+              "⚔️ 1 Set = 10 Rounds\n🏆 Total Sets = 10\n🔥 May the best warrior win!",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
