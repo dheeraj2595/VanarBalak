@@ -69,6 +69,7 @@ class gameState extends ChangeNotifier {
   int wipeOutL = 0;
   int gameScore = 0;
   int leaderBoardScore = 0;
+  bool playerHasName = false;
 
   gameState() {
     initializeGame();
@@ -99,6 +100,7 @@ class gameState extends ChangeNotifier {
     randomNameGenerate();
     updateMasterNumber();
     loadLeaders();
+    newOrOldPlayer();
 
     notifyListeners();
   }
@@ -115,6 +117,14 @@ class gameState extends ChangeNotifier {
       "अमर",
       "अजेय",
       "दिव्य",
+      "उत्कृष्ट", // Excellent
+      "सशक्त", // Empowered
+      "साहसी", // Courageous
+      "ज्ञानी", // Wise
+      "शुभ्र", // Pure
+      "संपन्न", // Prosperous
+      "सुशांत", // Calm / Peaceful
+      "सफल", // Successful
     ];
     nameNoun = [
       "योद्धा",
@@ -128,6 +138,19 @@ class gameState extends ChangeNotifier {
       "आत्मा",
       "पर्वत",
       "अग्नि",
+      "वज्र", // Thunderbolt
+      "सिंहासन", // Throne
+      "असुर", // Demon
+      "देव", // God
+      "अमर", // Immortal
+      "सिंह", // Lion (another form)
+      "चक्र", // Discus / Wheel
+      "ध्वज", // Flag / Banner
+      "भानु", // Sun
+      "वायु", // Wind
+      "अस्त्र", // Weapon
+      "नक्षत्र", // Star
+      "विक्रम", // Valor
     ];
     nameDevanagiriA = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
     nameDevanagiriB = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
@@ -150,15 +173,30 @@ class gameState extends ChangeNotifier {
   }
 
   void addLeader() {
-    final leaderBoardData newLeader = leaderBoardData(
-      leaderName: playerName,
-      leaderScore: playerFinalScore,
+    // Check if player already exists
+    final existingIndex = _leaders.indexWhere(
+      (e) => e.leaderName == playerName,
     );
 
-    _leaders.add(newLeader);
+    if (existingIndex >= 0) {
+      // Update score if the new score is higher
+      _leaders[existingIndex] = leaderBoardData(
+        leaderName: playerName,
+        leaderScore: playerFinalScore,
+      );
+    } else {
+      // Add as a new leader if not found
+      _leaders.add(
+        leaderBoardData(leaderName: playerName, leaderScore: playerFinalScore),
+      );
+    }
 
+    // Sort leaderboard by score descending
     _leaders.sort((a, b) => b.leaderScore.compareTo(a.leaderScore));
+
+    // Save to SharedPreferences
     saveLeaders();
+
     notifyListeners();
   }
 
@@ -176,6 +214,43 @@ class gameState extends ChangeNotifier {
       _leaders.sort((a, b) => b.leaderScore.compareTo(a.leaderScore));
       notifyListeners();
     }
+  }
+
+  Future<void> saveLastPlayerName() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lastPlayerName', playerName);
+  }
+
+  Future<String?> loadLastPlayerName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('lastPlayerName');
+  }
+
+  Future<void> newOrOldPlayer() async {
+    final lastPlayerName = await loadLastPlayerName();
+
+    if (lastPlayerName == null) {
+      randomNameGenerate();
+      await saveLastPlayerName();
+      playerHasName = true;
+    } else {
+      playerHasName = false;
+      playerName = lastPlayerName;
+    }
+    notifyListeners();
+  }
+
+  void newIdentity() {
+    randomNameGenerate();
+    playerHasName = true;
+
+    notifyListeners();
+  }
+
+  void oldIdentity() {
+    playerHasName = true;
+
+    notifyListeners();
   }
 
   void computerPlay() {
@@ -295,6 +370,8 @@ class gameState extends ChangeNotifier {
       }
       gameStats();
       gameScore = playerFinalScore;
+      addLeader();
+      loadLeaders();
       notifyListeners();
     }
   }
@@ -401,8 +478,11 @@ class MyApp extends StatelessWidget {
               game.winnerComputer == 1 ||
               game.winnerBoth == 1) {
             return const winnerPage();
-          } else {
-            return MyHomePage();
+          } else if (game.playerHasName == false) {
+            return const oldPlayerChoice();
+          } // show choice screen
+          else {
+            return const MyHomePage();
           }
         },
       ),
@@ -670,8 +750,8 @@ class randomNumber extends StatelessWidget {
               alignment: WrapAlignment.center,
               runAlignment: WrapAlignment.center,
               children: [
-                Icon(Icons.emoji_events, color: Colors.amber, size: 30),
-                SizedBox(height: 30),
+                Icon(Icons.emoji_events, color: Colors.amber, size: 20),
+                SizedBox(height: 20),
                 if (game.vanarBalakSide - game.computerSide >= 0)
                   Text(
                     'Vanar Balak winning by ${game.vanarBalakSide - game.computerSide}',
@@ -702,8 +782,8 @@ class randomNumber extends StatelessWidget {
                   ),
 
                 SizedBox(height: 30),
-                Icon(Icons.emoji_events, color: Colors.amber, size: 30),
-                SizedBox(height: 40),
+                Icon(Icons.emoji_events, color: Colors.amber, size: 20),
+                SizedBox(height: 30),
                 if (game.setVictoryMargin > 0)
                   Text(
                     'set ${game.totalSet - 1} won by Vanar Balak',
@@ -966,7 +1046,7 @@ class winnerPage extends StatelessWidget {
           Container(
             color: theme.colorScheme.secondaryContainer,
             child: Text(
-              "Grand Score : $playerFinalScore",
+              "Vanar Aura : $playerFinalScore",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -1285,9 +1365,27 @@ class leaderBoard extends StatelessWidget {
               itemBuilder: (context, index) {
                 final leader = leaders[index];
                 return ListTile(
-                  leading: Text("#${index + 1}"),
-                  title: Text(leader.leaderName),
-                  trailing: Text(leader.leaderScore.toString()),
+                  leading: Text(
+                    "#${index + 1}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).size.width * 0.04,
+                    ),
+                  ),
+                  title: Text(
+                    leader.leaderName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).size.width * 0.04,
+                    ),
+                  ),
+                  trailing: Text(
+                    leader.leaderScore.toString(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.of(context).size.width * 0.04,
+                    ),
+                  ),
                 );
               },
             ),
@@ -1543,6 +1641,75 @@ class instructions extends StatelessWidget {
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class oldPlayerChoice extends StatelessWidget {
+  const oldPlayerChoice({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Vanar Balak",
+          style: TextStyle(
+            fontSize: theme.textTheme.headlineMedium!.fontSize,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.primary,
+        centerTitle: true,
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              "Welcome back Vanar Balak.\n"
+              "Do you want to continue with the old vanar identity or forge a new one?",
+              style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width * 0.06,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                context.read<gameState>().oldIdentity();
+              },
+              icon: const Icon(Icons.casino),
+              label: const Text("Continue with Old Identity"),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                context.read<gameState>().newIdentity();
+              },
+              icon: const Icon(Icons.auto_fix_high),
+              label: const Text("Forge a New Identity"),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
               ),
             ),
           ),
