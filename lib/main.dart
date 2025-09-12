@@ -180,10 +180,12 @@ class gameState extends ChangeNotifier {
 
     if (existingIndex >= 0) {
       // Update score if the new score is higher
-      _leaders[existingIndex] = leaderBoardData(
-        leaderName: playerName,
-        leaderScore: playerFinalScore,
-      );
+      if (playerFinalScore > _leaders[existingIndex].leaderScore) {
+        _leaders[existingIndex] = leaderBoardData(
+          leaderName: playerName,
+          leaderScore: playerFinalScore,
+        );
+      }
     } else {
       // Add as a new leader if not found
       _leaders.add(
@@ -482,7 +484,7 @@ class MyApp extends StatelessWidget {
             return const oldPlayerChoice();
           } // show choice screen
           else {
-            return const MyHomePage();
+            return MyHomePage();
           }
         },
       ),
