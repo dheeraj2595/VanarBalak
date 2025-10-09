@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vanarbalak/leaderBoardData.dart';
 import 'sounds.dart';
@@ -398,16 +397,20 @@ class gameState extends ChangeNotifier {
     if (winnerVanar == 1) {
       totalWinGame = totalWinGame + 1;
       gameWinStreak = gameWinStreak + 1;
+      gameLooseStreak = 0;
       playerFinalScore = playerFinalScore + 200;
     }
     if (winnerComputer == 1) {
       totalLooseGame = totalLooseGame + 1;
       gameLooseStreak = gameLooseStreak + 1;
+      gameWinStreak = 0;
       playerFinalScore = playerFinalScore - 150;
     }
     if (winnerBoth == 1) {
       totalTieGame = totalTieGame + 1;
       playerFinalScore = playerFinalScore + 100;
+      gameLooseStreak = 0;
+      gameWinStreak = 0;
     }
     if (gameWinStreak == 3) {
       finalGameWinStreak = finalGameWinStreak + 1;

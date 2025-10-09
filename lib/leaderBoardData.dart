@@ -1,4 +1,3 @@
-import 'package:vanarbalak/main.dart';
 import 'dart:convert';
 
 class leaderBoardData {
