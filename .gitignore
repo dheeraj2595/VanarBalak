@@ -43,3 +43,34 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Flutter/Dart
+build/
+.dart_tool/
+.packages
+pubspec.lock
+
+# Android
+android/.gradle/
+android/app/build/
+android/key.properties
+android/app/key.jks
+
+# iOS
+ios/Pods/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Runner.xcworkspace/
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Flutter/App.framework
+ios/Flutter/Flutter.podspec
+
+# VS Code / IDE
+.vscode/
+.idea/
+*.iml
+
+# Others
+*.log
+*.lock
