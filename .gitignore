@@ -54,7 +54,7 @@ pubspec.lock
 android/.gradle/
 android/app/build/
 android/key.properties
-android/app/key.jks
+android/app/vanarbalak-keystore.jks
 
 # iOS
 ios/Pods/
