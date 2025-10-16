@@ -11,7 +11,7 @@ class levelPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final playerName = context.read<gameState>().playerName;
-    final playerFinalScore = context.read<gameState>().playerFinalScore;
+    final playerFinalScore = context.watch<gameState>().playerFinalScore;
 
     return Scaffold(
       appBar: AppBar(
@@ -154,14 +154,6 @@ class randomNumber extends StatelessWidget {
   Widget build(BuildContext context) {
     final game = context.watch<gameState>();
 
-    if (game.setNumber.isOdd) {
-      game.isComputerTurn = true;
-      Future.delayed(Duration(milliseconds: 1500), () {
-        context.read<gameState>().computerPlay();
-      });
-    } else {
-      game.isComputerTurn = false;
-    }
     Future.delayed(Duration(milliseconds: 1500), () {
       context.read<gameState>().setSystem();
       context.read<gameState>().winnerSystem();

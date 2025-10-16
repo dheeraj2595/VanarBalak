@@ -127,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text("Jungle Progression"),
               onTap: () {
                 context.read<gameState>().levelPlay = true;
+
                 Navigator.pop(context);
                 Navigator.push(
                   context,
@@ -200,14 +201,6 @@ class randomNumber extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final game = context.watch<gameState>();
-    if (game.setNumber.isOdd) {
-      game.isComputerTurn = true;
-      Future.delayed(Duration(milliseconds: 1500), () {
-        context.read<gameState>().computerPlay();
-      });
-    } else {
-      game.isComputerTurn = false;
-    }
     Future.delayed(Duration(milliseconds: 1500), () {
       context.read<gameState>().setSystem();
       context.read<gameState>().winnerSystem();

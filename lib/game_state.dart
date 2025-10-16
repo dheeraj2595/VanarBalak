@@ -162,6 +162,14 @@ class gameState extends ChangeNotifier {
 
   void updateMasterNumber() {
     masterNumber = bellWithRareExtremes(1000);
+    if (setNumber.isOdd) {
+      isComputerTurn = true;
+      Future.delayed(Duration(milliseconds: 1500), () {
+        computerPlay();
+      });
+    } else {
+      isComputerTurn = false;
+    }
     gameStats();
     notifyListeners();
   }
