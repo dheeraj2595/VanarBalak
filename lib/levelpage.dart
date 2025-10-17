@@ -13,136 +13,168 @@ class levelPage extends StatelessWidget {
     final playerName = context.read<gameState>().playerName;
     final playerFinalScore = context.watch<gameState>().playerFinalScore;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Vanar Balak",
-          style: TextStyle(
-            fontSize: theme.textTheme.headlineMedium!.fontSize,
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.onPrimary,
+    return Consumer<gameState>(
+      builder: (context, game, _) {
+        if (game.winnerVanar == 1 ||
+            game.winnerComputer == 1 ||
+            game.winnerBoth == 1) {
+          // ✅ If a winner is found, go to winnerPage
+          return const winnerPage();
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              "Vanar Balak",
+              style: TextStyle(
+                fontSize: theme.textTheme.headlineMedium!.fontSize,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onPrimary,
+              ),
+            ),
+            backgroundColor: theme.colorScheme.primary,
+            centerTitle: true,
           ),
-        ),
-        backgroundColor: theme.colorScheme.primary,
-        centerTitle: true,
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(
-              child: Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: Text(
-                  "Menu",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: MediaQuery.of(context).size.width * 0.05,
-                  ),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.leaderboard),
-              title: Text("Balak’s Scroll of Triumphs 📜"),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const leaderBoard()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.integration_instructions),
-              title: Text("🪶 The Sage’s Guidance"),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const instructions()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.score),
-              title: Text("The Balak’s Tally"),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const VanarTallyPage(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.forest),
-              title: Text("Jungle Progression"),
-              onTap: () {
-                context.read<gameState>().levelPlay = true;
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => levelPage()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Column(
-        children: [
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  child: Text(
-                    "🛡️Vanar Identity: $playerName",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  child: Text(
-                    "⚡Vanar Aura: $playerFinalScore",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: Row(
+          drawer: Drawer(
+            child: ListView(
               children: [
-                Flexible(
-                  child: Container(
-                    color: theme.colorScheme.primaryContainer,
-                    child: vanarBalakNumber(),
+                DrawerHeader(
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Text(
+                      "Menu",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: MediaQuery.of(context).size.width * 0.05,
+                      ),
+                    ),
                   ),
                 ),
-                Flexible(
-                  child: Container(
-                    color: theme.colorScheme.primaryContainer,
-                    child: randomNumber(),
-                  ),
+                ListTile(
+                  leading: Icon(Icons.leaderboard),
+                  title: Text("Balak’s Scroll of Triumphs 📜"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const leaderBoard(),
+                      ),
+                    );
+                  },
                 ),
-                Flexible(
-                  child: Container(
-                    color: theme.colorScheme.primaryContainer,
-                    child: ComputerNumber(),
-                  ),
+                ListTile(
+                  leading: Icon(Icons.integration_instructions),
+                  title: Text("🪶 The Sage’s Guidance"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const instructions(),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.score),
+                  title: Text("The Balak’s Tally"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const VanarTallyPage(),
+                      ),
+                    );
+                  },
+                ),
+                ExpansionTile(
+                  leading: Icon(Icons.mode),
+                  title: Text("Game modes"),
+                  children: [
+                    ListTile(
+                      leading: Icon(Icons.home),
+                      title: Text("Urban trail (normal mode)"),
+                      onTap: () {
+                        context.read<gameState>().levelPlay = true;
+                        Navigator.pop(context);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyHomePage()),
+                        );
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.forest),
+                      title: Text("Jungle Progression"),
+                      onTap: () {
+                        context.read<gameState>().levelPlay = true;
+                        Navigator.pop(context);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => levelPage()),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-        ],
-      ),
+          body: Column(
+            children: [
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      child: Text(
+                        "🛡️Vanar Identity: ${game.playerName}",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      child: Text(
+                        "⚡Vanar Aura: ${game.playerFinalScore}",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Container(
+                        color: theme.colorScheme.primaryContainer,
+                        child: vanarBalakNumber(),
+                      ),
+                    ),
+                    Flexible(
+                      child: Container(
+                        color: theme.colorScheme.primaryContainer,
+                        child: randomNumber(),
+                      ),
+                    ),
+                    Flexible(
+                      child: Container(
+                        color: theme.colorScheme.primaryContainer,
+                        child: ComputerNumber(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -153,11 +185,7 @@ class randomNumber extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final game = context.watch<gameState>();
-
-    Future.delayed(Duration(milliseconds: 1500), () {
-      context.read<gameState>().setSystem();
-      context.read<gameState>().winnerSystem();
-    });
+    game.levelPlayRules();
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -165,7 +193,15 @@ class randomNumber extends StatelessWidget {
         Text(
           "Trail : ${game.level} ",
           style: TextStyle(
-            fontSize: MediaQuery.of(context).size.width * 0.07,
+            fontSize: MediaQuery.of(context).size.width * 0.06,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          "${game.levelRule} ",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * 0.02,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -211,7 +247,8 @@ class randomNumber extends StatelessWidget {
                   game.vanarBalakDigit >= 5 || game.isComputerTurn == true
                   ? null
                   : () {
-                      context.read<gameState>().takeNumber();
+                      context.read<gameState>().levelPlayRules();
+                      context.read<gameState>().levelTakeNumber();
                       context.read<gameState>().updateMasterNumber();
                       Sounds.playClickTake();
                     },
@@ -224,7 +261,8 @@ class randomNumber extends StatelessWidget {
                     game.computerDigit >= 5 || game.isComputerTurn == true
                     ? null
                     : () {
-                        context.read<gameState>().giveNumber();
+                        context.read<gameState>().levelPlayRules();
+                        context.read<gameState>().levelGiveNumber();
                         context.read<gameState>().updateMasterNumber();
                         Sounds.playClickGive();
                       },

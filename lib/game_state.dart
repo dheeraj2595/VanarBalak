@@ -3,6 +3,16 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vanarbalak/leaderBoardData.dart';
 
+extension PrimeCheck on int {
+  bool get isPrime {
+    if (this < 2) return false;
+    for (int i = 2; i * i <= this; i++) {
+      if (this % i == 0) return false;
+    }
+    return true;
+  }
+}
+
 class gameState extends ChangeNotifier {
   int computerSide = 0;
   int vanarBalakSide = 0;
@@ -64,6 +74,8 @@ class gameState extends ChangeNotifier {
   int gameTripleStreak = 0;
   bool levelPlay = false;
   int level = 1;
+  int refinedNumber = 0;
+  String levelRule = "";
 
   gameState() {
     initializeGame();
@@ -161,11 +173,19 @@ class gameState extends ChangeNotifier {
   }
 
   void updateMasterNumber() {
+    setSystem();
+    winnerSystem();
     masterNumber = bellWithRareExtremes(1000);
-    if (setNumber.isOdd) {
+    if (setNumber.isOdd && levelPlay == false) {
       isComputerTurn = true;
       Future.delayed(Duration(milliseconds: 1500), () {
         computerPlay();
+      });
+    }
+    if (setNumber.isOdd && levelPlay == true) {
+      isComputerTurn = true;
+      Future.delayed(Duration(milliseconds: 1500), () {
+        levelComputerPlay();
       });
     } else {
       isComputerTurn = false;
@@ -363,6 +383,9 @@ class gameState extends ChangeNotifier {
         winnerVanar = 1;
         winStatement =
             "Vanar Balak reigns supreme! 🐒🔥"; // Vanar Balak is the overall winner
+        if (levelPlay == true) {
+          level = level + 1;
+        }
       } else if (computerScore > vanarScore) {
         winnerComputer = 1;
         winStatement =
@@ -371,9 +394,9 @@ class gameState extends ChangeNotifier {
         winnerBoth = 1;
         winStatement =
             "The battle continues in a stalemate ."; // It's a tie overall
-      }
-      if (totalSet > 10 && levelPlay == true && winnerVanar == 1) {
-        level = level + 1;
+        if (levelPlay == true) {
+          level = level + 1;
+        }
       }
       gameStats();
       gameScore = playerFinalScore;
@@ -386,7 +409,6 @@ class gameState extends ChangeNotifier {
   void resetGame() {
     computerSide = 0;
     vanarBalakSide = 0;
-    masterNumber = 0;
     totalSet = 1;
     setNumber = 0;
     vanarScore = 0;
@@ -468,6 +490,107 @@ class gameState extends ChangeNotifier {
       setNumber = setNumber + 1;
       moveHistory.add('C');
       computerNumberAdded.add('$masterNumber');
+    }
+    notifyListeners();
+  }
+
+  // Defining levels
+
+  void levelPlayRules() {
+    refinedNumber = masterNumber;
+    if (level == 2) {
+      if (masterNumber.isEven) {
+        refinedNumber = masterNumber + 200;
+      }
+      if (masterNumber.isPrime) {
+        refinedNumber = masterNumber + 400;
+      }
+      levelRule = "+ 200 for even numbers. \n+ 400 for Prime numbers.";
+    }
+    if (level == 3) {
+      if (masterNumber.isEven) {
+        refinedNumber = masterNumber + 200;
+      }
+      if (masterNumber.isOdd) {
+        refinedNumber = masterNumber + 300;
+      }
+      if (masterNumber.isPrime) {
+        refinedNumber = masterNumber + 400;
+      }
+      levelRule =
+          "+ 200 for even numbers.\n + 300 for odd numbers. \n + 400 for Prime numbers.";
+    }
+    if (level == 4) {
+      if (masterNumber.isEven) {
+        refinedNumber = masterNumber - 200;
+      }
+      if (masterNumber.isPrime) {
+        refinedNumber = masterNumber + 400;
+      }
+      levelRule = "- 200 for even numbers. \n + 400 for Prime numbers.";
+    }
+    if (level == 5) {
+      if (masterNumber.isEven) {
+        refinedNumber = masterNumber - 100;
+      }
+      if (masterNumber.isOdd) {
+        refinedNumber = masterNumber - 200;
+      }
+      if (masterNumber.isPrime) {
+        refinedNumber = masterNumber + 400;
+      }
+      levelRule =
+          "- 100 for even numbers.\n - 200 for odd numbers. \n + 400 for Prime numbers.";
+    }
+    if (level == 6) {
+      if (masterNumber.isEven) {
+        refinedNumber = masterNumber - 100;
+      }
+      if (masterNumber.isOdd) {
+        refinedNumber = masterNumber - 200;
+      }
+      if (masterNumber.isPrime) {
+        refinedNumber = masterNumber + 1000;
+      }
+      levelRule =
+          "- 100 for even numbers.\n - 200 for odd numbers.\n + 1000 for Prime numbers.";
+    }
+  }
+
+  void levelTakeNumber() {
+    if (vanarBalakDigit < 5) {
+      vanarBalakSide += refinedNumber;
+      vanarBalakDigit = vanarBalakDigit + 1;
+      setNumber = setNumber + 1;
+      moveHistory.add('V');
+      vanarNumberAdded.add('$refinedNumber');
+    }
+
+    notifyListeners();
+  }
+
+  void levelGiveNumber() {
+    if (computerDigit < 5) {
+      computerSide += refinedNumber;
+      computerDigit = computerDigit + 1;
+      setNumber = setNumber + 1;
+      moveHistory.add('C');
+      computerNumberAdded.add('$refinedNumber');
+    }
+    notifyListeners();
+  }
+
+  void levelComputerPlay() {
+    if (masterNumber >= 500 && computerDigit < 5) {
+      levelGiveNumber();
+      updateMasterNumber();
+    } else if (masterNumber < 500 && vanarBalakDigit < 5) {
+      levelTakeNumber();
+      updateMasterNumber();
+    } else {
+      levelGiveNumber();
+      levelTakeNumber();
+      updateMasterNumber();
     }
     notifyListeners();
   }

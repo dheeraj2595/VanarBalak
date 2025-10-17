@@ -56,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final playerName = context.read<gameState>().playerName;
-    final playerFinalScore = context.read<gameState>().playerFinalScore;
+    final playerFinalScore = context.watch<gameState>().playerFinalScore;
 
     return Scaffold(
       appBar: AppBar(
@@ -122,18 +122,35 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
-            ListTile(
-              leading: Icon(Icons.forest),
-              title: Text("Jungle Progression"),
-              onTap: () {
-                context.read<gameState>().levelPlay = true;
-
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => levelPage()),
-                );
-              },
+            ExpansionTile(
+              leading: Icon(Icons.mode),
+              title: Text("Game modes"),
+              children: [
+                ListTile(
+                  leading: Icon(Icons.home),
+                  title: Text("Urban trail (normal mode)"),
+                  onTap: () {
+                    context.read<gameState>().levelPlay = true;
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyHomePage()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.forest),
+                  title: Text("Jungle Progression"),
+                  onTap: () {
+                    context.read<gameState>().levelPlay = true;
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => levelPage()),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
@@ -201,10 +218,6 @@ class randomNumber extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final game = context.watch<gameState>();
-    Future.delayed(Duration(milliseconds: 1500), () {
-      context.read<gameState>().setSystem();
-      context.read<gameState>().winnerSystem();
-    });
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
