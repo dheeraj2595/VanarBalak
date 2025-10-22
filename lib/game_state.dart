@@ -530,6 +530,16 @@ class gameState extends ChangeNotifier {
       levelRule = "- 200 for even numbers. \n + 400 for Prime numbers.";
     }
     if (level == 5) {
+      if (masterNumber % 3 == 0) {
+        refinedNumber = masterNumber * 2;
+      }
+      if (masterNumber.isPrime) {
+        refinedNumber = masterNumber + 400;
+      }
+      levelRule =
+          "Doubles the number divisible by 3. \n + 400 for Prime numbers.";
+    }
+    if (level == 6) {
       if (masterNumber.isEven) {
         refinedNumber = masterNumber - 100;
       }
@@ -542,18 +552,57 @@ class gameState extends ChangeNotifier {
       levelRule =
           "- 100 for even numbers.\n - 200 for odd numbers. \n + 400 for Prime numbers.";
     }
-    if (level == 6) {
-      if (masterNumber.isEven) {
-        refinedNumber = masterNumber - 100;
-      }
-      if (masterNumber.isOdd) {
-        refinedNumber = masterNumber - 200;
+    if (level == 7) {
+      if (masterNumber % 5 == 0) {
+        refinedNumber = masterNumber * 3;
       }
       if (masterNumber.isPrime) {
-        refinedNumber = masterNumber + 1000;
+        refinedNumber = masterNumber + 400;
       }
       levelRule =
-          "- 100 for even numbers.\n - 200 for odd numbers.\n + 1000 for Prime numbers.";
+          "Triples the number divisible by 5. \n + 400 for Prime numbers.";
+    }
+    if (level == 8) {
+      if (masterNumber % 5 == 0) {
+        refinedNumber = masterNumber * 3;
+      }
+      if (masterNumber % 3 == 0) {
+        refinedNumber = masterNumber * 2;
+      }
+      if (masterNumber.isPrime) {
+        refinedNumber = masterNumber + 400;
+      }
+      levelRule =
+          "Doubles the number divisible by 3. \n Triples the number divisible by 5. \n + 400 for Prime numbers.";
+    }
+    if (level == 9) {
+      if (masterNumber % 7 == 0) {
+        refinedNumber = masterNumber * 4;
+      }
+      if (masterNumber % 3 == 0) {
+        refinedNumber = masterNumber * 2;
+      }
+      if (masterNumber.isPrime) {
+        refinedNumber = masterNumber + 400;
+      }
+      levelRule =
+          "Quadruples the number divisible by 7. \n Doubles the number divisible by 3. \n + 400 for Prime numbers.";
+    }
+    if (level == 10) {
+      if (masterNumber % 13 == 0) {
+        refinedNumber = masterNumber * 7;
+      }
+      if (masterNumber % 7 == 0) {
+        refinedNumber = masterNumber * 4;
+      }
+      if (masterNumber % 3 == 0) {
+        refinedNumber = masterNumber * 2;
+      }
+      if (masterNumber.isPrime) {
+        refinedNumber = masterNumber + 400;
+      }
+      levelRule =
+          "7 times the number divisible by 13.\n Quadruples the number divisible by 7. \n Doubles the number divisible by 3. \n + 400 for Prime numbers.";
     }
   }
 

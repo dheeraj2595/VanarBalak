@@ -227,7 +227,7 @@ class randomNumber extends StatelessWidget {
           },
           label: Text("Vanar Records", textAlign: TextAlign.center),
         ),
-        SizedBox(height: 80),
+        SizedBox(height: 40),
         Text(
           '${game.totalSet} out of 10 Sets',
           style: TextStyle(
